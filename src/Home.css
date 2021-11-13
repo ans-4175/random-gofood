@@ -1,0 +1,36 @@
+main {
+  padding: 16px;
+  text-align: center;
+}
+
+wired-card {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  display: block;
+}
+
+section {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+wired-button {
+  background: lightblue;
+  color: darkcyan;
+  margin: 8px;
+}
+
+wired-button.btn-copy {
+  background: lightgreen;
+  color: darkolivegreen;
+  margin: 8px;
+}
+
+wired-input {
+  width: 200px;
+  /* font-family: inherit; */
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  letter-spacing: 0.5em;
+}

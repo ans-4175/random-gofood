@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Gloria Hallelujah', cursive;
+  font-size: 16px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+:root {
+  --wired-toggle-on-color: darkorange;
+  --blue-tw: #1da1f2;
+  --blue-tint-tw: #1d8dee;
+  --light-blue-tw: #36d8ff;
+  --white-tw: #f5f8fa;
+  --white-bold-tw: #fff;
+  --grey-tw: #aab8c2;
+  --light-grey-tw: #e1e8ed;
+  --dark-grey-tw: #657786;
+  --black-tw: #14171a;
+  --black-bold-tw: #000;
+  /* --night-dim-tw: #243447; */
+  --night-dim-tw: #1b2737;
+  /* --night-dim-bold-tw: #141d26; */
+  --night-dim-bold-tw: #151e29;
+  --green-tw: #00ba7c;
+  --green-light-tw: rgba(0, 186, 124, 0.15);
+  --red-tw: #f91880;
+  --red-light-tw: rgba(249, 24, 128, 0.15);
+}
