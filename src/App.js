@@ -6,7 +6,8 @@ import {
   WiredLink
 } from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
-// import { sendEvent } from './libs/ga-analytics';
+import useGoogleAnalytics from './libs/use-analytics';
+import { sendEvent } from './libs/ga-analytics';
 
 import { Wheel } from 'react-custom-roulette'
 
@@ -15,6 +16,8 @@ import { pickNRandom } from './libs/common';
 import './App.css';
 
 function App() {
+  useGoogleAnalytics();
+
   const [fetched, setFetched] = useState(false);
   const [pickedMerchant, setPickedMerchant] = useState({});
   // eslint-disable-next-line
@@ -37,11 +40,11 @@ function App() {
   });
 
   const handleSpinClick = () => {
-    // sendEvent({
-    //   category: 'interaction',
-    //   action: `button`,
-    //   label: 'spin'
-    // });
+    sendEvent({
+      category: 'interaction',
+      action: `button`,
+      label: 'spin'
+    });
     console.log('start to spin');
     setFetched(false);
     const newPrizeNumber = Math.floor(Math.random() * wheelData.length)
@@ -50,27 +53,23 @@ function App() {
   }
 
   const handleResetClick = () => {
-    // sendEvent({
-    //   category: 'interaction',
-    //   action: `button`,
-    //   label: 'spin'
-    // });
+    sendEvent({
+      category: 'interaction',
+      action: `button`,
+      label: 'reset'
+    });
     setFetched(false);
     setMustSpin(false);
     refetch();
   }
 
   const onFinishSpin = async () => {
-    console.log('stop spin');
     const includeName = wheelData[prizeNumber]['option'].substring(0, wheelData[prizeNumber]['option'].length-3);
     const pickedMerchant = merchants.find(merch => merch.name.includes(includeName))
     setMustSpin(false);
-    console.log(pickedMerchant);
 
-    console.log('start fetch detail');
     const detailMerchant = await fetchDetail(pickedMerchant.id);
     const randomMenu = pickNRandom(detailMerchant.menu, 3);
-    console.log('finish fetch detail');
 
     setFetched(true);
     setPickedMerchant(detailMerchant);

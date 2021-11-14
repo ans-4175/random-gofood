@@ -1,6 +1,6 @@
 import ReactGA from 'react-ga4';
 
-const TRACKING_ID = 'G-XXXXXX';
+const TRACKING_ID = 'G-19LF8PFGYF';
 
 export function init() {
   // Enable testMode on local or development environment
