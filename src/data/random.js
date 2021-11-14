@@ -10,7 +10,7 @@ const getFakeData = async () => {
 const getMerchants = async (lat, long) => {
   const food = new RandomGoFood(lat, long);
   return await food.fastestMerchants();
-}
+};
 
 module.exports = {
   getFakeData,

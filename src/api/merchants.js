@@ -7,8 +7,8 @@ const fetchRandom = async (lat, long) => {
     method: 'get',
     url: `${BASE_API}/random`,
     params: {
-        lat,
-        long,
+      lat,
+      long
     }
   };
   const res = await axios(config);

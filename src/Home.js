@@ -9,18 +9,27 @@ import { useCurrentPosition } from 'react-use-geolocation';
 import { WiredButton, WiredCard } from 'wired-elements-react';
 // const { WiredButton, WiredCard } = require('wired-elements-react');
 
+const { pickNRandom } = require('./libs/helpers');
+
 function Home() {
   // const [lastDirection, setLastDirection] = useState('');
   const [posData, posError] = useCurrentPosition();
   const boxCard = useRef({});
 
-  const { data: merchants, error, isLoading, isError, isFetching, refetch } = useQuery(['merchants', 'posData'],
-  () => fetchRandom(posData.coords.latitude, posData.coords.longitude), {
-    enabled: !!posData,
+  const {
+    data: merchants,
+    error,
+    isLoading,
+    isError,
+    isFetching,
+    refetch
+  } = useQuery(['merchants', 'posData'], () => fetchRandom(posData.coords.latitude, posData.coords.longitude), {
+    enabled: !!posData
   });
 
   const onButton = () => {
-    console.log('Hit Button');
+    const randomWheel = pickNRandom(merchants, 1);
+    console.log(randomWheel);
 
     sendEvent({
       category: 'interaction',
@@ -33,8 +42,8 @@ function Home() {
     <div>
       {isLoading || (!posData && !posError) ? (
         <p>Loading...</p>
-      ) : (isError || posError) ? (
-        <p>Error: {(isError) ? error.message : posError.message}</p>
+      ) : isError || posError ? (
+        <p>Error: {isError ? error.message : posError.message}</p>
       ) : (
         <>
           <WiredCard elevation={3} ref={boxCard}>
