@@ -18,7 +18,7 @@ const fetchRandom = async (lat, long) => {
 const fetchDetail = async (id) => {
   const config = {
     method: 'get',
-    url: `${BASE_API}/merchant/${id}`,
+    url: `${BASE_API}/merchant/${id}`
   };
   const res = await axios(config);
   return res.data;

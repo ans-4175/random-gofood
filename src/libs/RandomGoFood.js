@@ -34,24 +34,24 @@ const goFoodFetch = (obj) => {
 };
 
 const merchantFetch = (id) => {
-    const config = {
-      method: 'get',
-      url: `${GOFOOD_URL}/${id}/profile`,
-      params: {
-        date: new Date().getTime()
-      }
-    };
-  
-    return new Promise((res) => {
-      axios(config)
-        .then(function (response) {
-          res(response.data);
-        })
-        .catch(function (error) {
-          res([]);
-        });
-    });
+  const config = {
+    method: 'get',
+    url: `${GOFOOD_URL}/${id}/profile`,
+    params: {
+      date: new Date().getTime()
+    }
   };
+
+  return new Promise((res) => {
+    axios(config)
+      .then(function (response) {
+        res(response.data);
+      })
+      .catch(function (error) {
+        res([]);
+      });
+  });
+};
 
 const goFoodList = async (obj) => {
   // obj = { page: 0, lat: '-6.755916003793253', long: '108.51373109736657' }
@@ -66,7 +66,7 @@ const goFoodList = async (obj) => {
       price_level: merch.content.avg_spend_level?.price_level,
       rating: merch.rating?.text,
       name: merch.title,
-    //   name: merch.content.brand.name,
+      //   name: merch.content.brand.name,
       tag: merch.content.cuisines.map((c) => c.code).join(','),
       distance_km: merch.content.delivery_status.distance,
       location: merch.content.location,
@@ -77,25 +77,25 @@ const goFoodList = async (obj) => {
 };
 
 const merchantDetail = async (id) => {
-    const merchant = await merchantFetch(id);
-    
-    return {
-        id: merchant.restaurant.id,
-        name: merchant.restaurant.name,
-        phone_number: merchant.restaurant.phone_number,
-        address: merchant.restaurant.address,
-        location: merchant.restaurant.location,
-        link: merchant.restaurant.short_link,
-        menu: merchant.items.map(it => {
-            return {
-                name: it.name,
-                price: it.price,
-                image: it.image,
-                weight: it.weight
-            }
-        })
-    }
+  const merchant = await merchantFetch(id);
+
+  return {
+    id: merchant.restaurant.id,
+    name: merchant.restaurant.name,
+    phone_number: merchant.restaurant.phone_number,
+    address: merchant.restaurant.address,
+    location: merchant.restaurant.location,
+    link: merchant.restaurant.short_link,
+    menu: merchant.items.map((it) => {
+      return {
+        name: it.name,
+        price: it.price,
+        image: it.image,
+        weight: it.weight
+      };
+    })
   };
+};
 
 const getRandomPoint = (location, distance = 1) => {
   // long, lat
@@ -155,10 +155,10 @@ class RandomGoFood {
 
   static async detailMerchants(id) {
     try {
-        const detail = await merchantDetail(id);
-        return detail;
+      const detail = await merchantDetail(id);
+      return detail;
     } catch (error) {
-        throw new Error(error);
+      throw new Error(error);
     }
   }
 }

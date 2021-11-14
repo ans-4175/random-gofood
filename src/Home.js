@@ -39,7 +39,7 @@ function Home() {
     const pickedMerchant = randomMerchants[0];
     const detailMerchant = await fetchDetail(pickedMerchant.id);
     const randomMenu = pickNRandom(detailMerchant.menu, 3);
-    
+
     setFetched(true);
     setPickedMerchant(detailMerchant);
     setPickedMenus(randomMenu);
@@ -54,29 +54,33 @@ function Home() {
       ) : isError || posError ? (
         <p>Error: {isError ? error.message : posError.message}</p>
       ) : (
-        <>
-          {/* <WiredCard elevation={3} ref={boxCard}> */}
-            <section>
-              <button onClick={() => onButton()}>
-                Show Me Food
-              </button>
-              { (fetched) && (
-                <>
-                  <p>{`"${pickedMerchant.name}"`}</p>
-                  <p><a href={`https://maps.google.com/?q=${pickedMerchant.address}`} target="_blank">{`${pickedMerchant.address}`}</a></p>
-                  <p><a href={pickedMerchant.link} target="_blank">Open in GoFood</a></p>
-                  <span>--MENU--</span>
-                  {pickedMenus.map((menu, key) =>
-                    <div key={key}>
-                      <p>{menu.name}</p>
-                      <p>{menu.price}</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </section>
-          {/* </WiredCard> */}
-        </>
+        <section>
+          <button onClick={() => onButton()}>Show Me Food</button>
+          {fetched && (
+            <>
+              <p>{`"${pickedMerchant.name}"`}</p>
+              <p>
+                <a
+                  href={`https://maps.google.com/?q=${pickedMerchant.address}`}
+                  target="_blank"
+                >{`${pickedMerchant.address}`}</a>
+              </p>
+              <p>
+                <a href={pickedMerchant.link} target="_blank">
+                  Open in GoFood
+                </a>
+              </p>
+              <span>--MENU--</span>
+              {pickedMenus.map((menu, key) => (
+                <div key={key}>
+                  <p>{menu.name}</p>
+                  <img src={menu.image} />
+                  <p>{menu.price}</p>
+                </div>
+              ))}
+            </>
+          )}
+        </section>
       )}
     </div>
   );
