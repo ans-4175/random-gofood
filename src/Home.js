@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useInfiniteQuery } from 'react-query';
-import { fetchRandom } from './api/profiles';
+import { fetchRandom } from './api/merchants';
 // import { useParams } from 'react-router-dom';
 import { sendEvent } from './libs/ga-analytics';
+import { useCurrentPosition } from 'react-use-geolocation';
 
 // error on esm import
 import { WiredButton, WiredCard } from 'wired-elements-react';
@@ -10,9 +11,13 @@ import { WiredButton, WiredCard } from 'wired-elements-react';
 
 function Home() {
   // const [lastDirection, setLastDirection] = useState('');
+  const [posData, posError] = useCurrentPosition();
   const boxCard = useRef({});
 
-  const { data, error, isLoading, isError, isFetching, refetch } = useQuery(['profiles'], () => fetchRandom());
+  const { data: merchants, error, isLoading, isError, isFetching, refetch } = useQuery(['merchants', 'posData'],
+  () => fetchRandom(posData.coords.latitude, posData.coords.longitude), {
+    enabled: !!posData,
+  });
 
   const onButton = () => {
     console.log('Hit Button');
@@ -26,10 +31,10 @@ function Home() {
 
   return (
     <div>
-      {isLoading ? (
+      {isLoading || (!posData && !posError) ? (
         <p>Loading...</p>
-      ) : isError ? (
-        <p>Error: {error.message}</p>
+      ) : (isError || posError) ? (
+        <p>Error: {(isError) ? error.message : posError.message}</p>
       ) : (
         <>
           <WiredCard elevation={3} ref={boxCard}>
@@ -38,6 +43,10 @@ function Home() {
                 Click Me
               </WiredButton>
             </section>
+            <div>
+              <p>Latitude: {posData.coords.latitude}</p>
+              <p>Longitude: {posData.coords.longitude}</p>
+            </div>
           </WiredCard>
         </>
       )}

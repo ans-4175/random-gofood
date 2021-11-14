@@ -7616,6 +7616,11 @@ react-router@5.2.1:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
+react-use-geolocation@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-use-geolocation/-/react-use-geolocation-0.1.1.tgz#249d60162887e62dcf388fcbf6cd8fe362d1186e"
+  integrity sha512-x9L0HC1o/g0emakmyCTT51tY8qGZ43AVf9XDe89s8B5eqe+BFlW54YkAy+Q7E0jhb3O1n993Qws07+qeHrpszg==
+
 react@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
