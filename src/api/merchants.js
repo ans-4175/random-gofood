@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_API = './api'; // TODO: env
+const BASE_API = 'https://random-gofood-api.vercel.app';
 
 const fetchRandom = async (lat, long) => {
   const config = {

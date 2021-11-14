@@ -14,20 +14,16 @@ yarn start
 Open at `localhost:3000`
 
 Look for files in
-- `src/server.js`
-- `src/Home.js`
+
 - `src/App.js`
-- `src/data/`
-- `src/api/`
 
-## Why is this for?
+## Contributing
 
-To help create app faster for fullstack FE-BE in Javascript
+If you would like to help us with this project you can learn about our initiative from [twitter](https://twitter.com/ans4175/status/1457313278015639553?s=20). Before you contribute to this project, please make sure to read our [CONTRIBUTING](CONTRIBUTING.md) file.
 
 ## Tech behind this app
 
 You can learn more about tech stacks that we used by visiting their documentations.
 
-- [Razzle](https://razzlejs.org/)
-- [Express](https://expressjs.com/)
 - [React](https://reactjs.org/)
+- [Wired](https://wiredjs.com/)
