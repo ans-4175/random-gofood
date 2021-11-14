@@ -142,7 +142,7 @@ function App() {
                 <>
                   <p>{`"${pickedMerchant.name}"`}</p>
                   <WiredLink
-                    href={`https://maps.google.com/?q=${pickedMerchant.address}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
                     target="_blank"
                     rel="noopener"
                   >
