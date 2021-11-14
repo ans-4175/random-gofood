@@ -13,7 +13,7 @@ wired-card {
 section {
   max-width: 400px;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 10px 0;
 }
 
 wired-button {
@@ -22,9 +22,9 @@ wired-button {
   margin: 8px;
 }
 
-wired-button.btn-copy {
-  background: lightgreen;
-  color: darkolivegreen;
+wired-button.btn-reset {
+  background: lightcoral;
+  color: darkred;
   margin: 8px;
 }
 

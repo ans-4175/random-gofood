@@ -1,38 +1,26 @@
-import React, { useState } from 'react';
-// import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import {
-  WiredButton,
-  WiredCard
-} from 'wired-elements-react';
-import { Wheel } from 'react-custom-roulette'
-// import { sendEvent } from './libs/ga-analytics';
+import { WiredButton, WiredCard, WiredLink } from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
+import useGoogleAnalytics from './libs/use-analytics';
+import { sendEvent } from './libs/ga-analytics';
+
+import { Wheel } from 'react-custom-roulette';
 
 import { fetchRandom, fetchDetail } from './api/merchants';
+import { pickNRandom } from './libs/common';
 import './App.css';
 
-import { pickNRandom } from './libs/common';
-
-const data = [
-  { option: '0' },
-  { option: '1' },
-  { option: '2' },
-  { option: '3' },
-  { option: '4' },
-  { option: '5' },
-  { option: '6' },
-  { option: '7' },
-  { option: '8' },
-  { option: '9' },
-  { option: '10' },
-  { option: '11' },
-]
-
 function App() {
+  useGoogleAnalytics();
+
   const [fetched, setFetched] = useState(false);
   const [pickedMerchant, setPickedMerchant] = useState({});
+  // eslint-disable-next-line
   const [pickedMenus, setPickedMenus] = useState([]);
+  const [wheelData, setWheelData] = useState([]);
+  const [mustSpin, setMustSpin] = useState(false);
+  const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
   // const boxCard = useRef({});
 
@@ -40,21 +28,51 @@ function App() {
     data: merchants,
     error,
     isLoading,
+    isFetching,
     isError,
-    // refetch
-  } = useQuery(['merchants', 'posData'], () => fetchRandom(posData.coords.latitude, posData.coords.longitude), {
-    enabled: !!posData
-  });
+    refetch
+  } = useQuery(
+    ['merchants', 'posData'],
+    () => fetchRandom(posData.coords.latitude, posData.coords.longitude),
+    {
+      enabled: !!posData
+    }
+  );
 
-  const onButton = async () => {
-    // sendEvent({
-    //   category: 'interaction',
-    //   action: `button`,
-    //   label: 'hit'
-    // });
+  const handleSpinClick = () => {
+    sendEvent({
+      category: 'interaction',
+      action: `button`,
+      label: 'spin'
+    });
+    console.log('start to spin');
+    setFetched(false);
+    const newPrizeNumber = Math.floor(Math.random() * wheelData.length);
+    setPrizeNumber(newPrizeNumber);
+    setMustSpin(true);
+  };
 
-    const randomMerchants = pickNRandom(merchants, 1);
-    const pickedMerchant = randomMerchants[0];
+  const handleResetClick = () => {
+    sendEvent({
+      category: 'interaction',
+      action: `button`,
+      label: 'reset'
+    });
+    setFetched(false);
+    setMustSpin(false);
+    refetch();
+  };
+
+  const onFinishSpin = async () => {
+    const includeName = wheelData[prizeNumber]['option'].substring(
+      0,
+      wheelData[prizeNumber]['option'].length - 3
+    );
+    const pickedMerchant = merchants.find((merch) =>
+      merch.name.includes(includeName)
+    );
+    setMustSpin(false);
+
     const detailMerchant = await fetchDetail(pickedMerchant.id);
     const randomMenu = pickNRandom(detailMerchant.menu, 3);
 
@@ -63,61 +81,94 @@ function App() {
     setPickedMenus(randomMenu);
   };
 
-  const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(0);
-
-  const handleSpinClick = () => {
-    const newPrizeNumber = Math.floor(Math.random() * data.length)
-    setPrizeNumber(newPrizeNumber)
-    setMustSpin(true)
-  }
+  useEffect(() => {
+    if (merchants) {
+      const randomMerchants = pickNRandom(merchants, 10);
+      const newWheelData = randomMerchants.map((merch) => {
+        return {
+          option: `${merch.name.substring(0, 25)}...`
+        };
+      });
+      setWheelData(newWheelData);
+    }
+  }, [merchants]);
 
   return (
     <main>
       <WiredCard elevation={3}>
         <h3>Random GoFood Picker</h3>
         <h5>Near You</h5>
-        {isLoading || (!posData && !posError) ? (
-          <p>Loading...</p>
+        {!posData && !posError ? (
+          <p>Getting browser's location...</p>
+        ) : isFetching || isLoading ? (
+          <p>Loading merchants data...</p>
         ) : isError || posError ? (
           <p>Error: {isError ? error.message : posError.message}</p>
         ) : (
-          <section>
-            <WiredButton elevation={2} onClick={() => onButton()}>Show Me Food</WiredButton>
-            {fetched && (
-              <>
-                <p>{`"${pickedMerchant.name}"`}</p>
-                <p>
-                  <a href={`https://maps.google.com/?q=${pickedMerchant.address}`} target="_blank">
-                    {`${pickedMerchant.address}`}
-                  </a>
-                </p>
-                <p>
-                  <a href={pickedMerchant.link} target="_blank">
+          <>
+            <section>
+              {wheelData && (
+                <>
+                  <Wheel
+                    mustStartSpinning={mustSpin}
+                    prizeNumber={prizeNumber}
+                    outerBorderWidth={3}
+                    fontSize={10}
+                    radiusLineWidth={3}
+                    data={wheelData}
+                    onStopSpinning={onFinishSpin}
+                  />
+                  {mustSpin ? (
+                    <p>Waiting to spin...</p>
+                  ) : (
+                    <>
+                      <WiredButton elevation={2} onClick={handleSpinClick}>
+                        SPIN
+                      </WiredButton>
+                      <WiredButton
+                        className="btn-reset"
+                        elevation={2}
+                        onClick={handleResetClick}
+                      >
+                        RESET
+                      </WiredButton>
+                    </>
+                  )}
+                </>
+              )}
+            </section>
+            <section>
+              {fetched && (
+                <>
+                  <p>{`"${pickedMerchant.name}"`}</p>
+                  <WiredLink
+                    href={`https://maps.google.com/?q=${pickedMerchant.address}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Open in Map
+                  </WiredLink>
+                  <br />
+                  <WiredLink
+                    href={pickedMerchant.link}
+                    target="_blank"
+                    rel="noopener"
+                  >
                     Open in GoFood
-                  </a>
-                </p>
-                <span>--MENU--</span>
-                {pickedMenus.map((menu, key) => (
-                  <div key={key}>
-                    <p>{menu.name}</p>
-                    <img alt={menu.name} src={menu.image} />
-                    <p>{menu.price}</p>
-                  </div>
-                ))}
-              </>
-            )}
-          </section>
+                  </WiredLink>
+                  {/* <span>--MENU--</span>
+              {pickedMenus.map((menu, key) => (
+                <div key={key}>
+                  <p>{menu.name}</p>
+                  <img alt={menu.name} src={menu.image} />
+                  <p>{menu.price}</p>
+                </div>
+              ))} */}
+                </>
+              )}
+            </section>
+          </>
         )}
-        <Wheel
-          mustStartSpinning={mustSpin}
-          prizeNumber={prizeNumber}
-          data={data}
-          onStopSpinning={() => {
-            setMustSpin(false)
-          }}
-        />
-        <WiredButton elevation={2} onClick={handleSpinClick}>SPIN</WiredButton>
       </WiredCard>
     </main>
   );
