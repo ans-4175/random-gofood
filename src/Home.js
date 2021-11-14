@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useInfiniteQuery } from 'react-query';
-import { fetchRandom } from './api/merchants';
+import { fetchRandom, fetchDetail } from './api/merchants';
 // import { useParams } from 'react-router-dom';
 import { sendEvent } from './libs/ga-analytics';
 import { useCurrentPosition } from 'react-use-geolocation';
@@ -27,9 +27,11 @@ function Home() {
     enabled: !!posData
   });
 
-  const onButton = () => {
+  const onButton = async () => {
     const randomWheel = pickNRandom(merchants, 1);
-    console.log(randomWheel);
+    const pickedMerchant = randomWheel[0];
+    const detailMerchant = await fetchDetail(pickedMerchant.id);
+    console.log(detailMerchant);
 
     sendEvent({
       category: 'interaction',
@@ -46,7 +48,7 @@ function Home() {
         <p>Error: {isError ? error.message : posError.message}</p>
       ) : (
         <>
-          <WiredCard elevation={3} ref={boxCard}>
+          {/* <WiredCard elevation={3} ref={boxCard}> */}
             <section>
               <WiredButton elevation={2} onClick={() => onButton()}>
                 Click Me
@@ -56,7 +58,7 @@ function Home() {
               <p>Latitude: {posData.coords.latitude}</p>
               <p>Longitude: {posData.coords.longitude}</p>
             </div>
-          </WiredCard>
+          {/* </WiredCard> */}
         </>
       )}
     </div>

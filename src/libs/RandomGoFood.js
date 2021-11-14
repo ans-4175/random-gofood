@@ -33,6 +33,26 @@ const goFoodFetch = (obj) => {
   });
 };
 
+const merchantFetch = (id) => {
+    const config = {
+      method: 'get',
+      url: `${GOFOOD_URL}/${id}/profile`,
+      params: {
+        date: new Date().getTime()
+      }
+    };
+  
+    return new Promise((res) => {
+      axios(config)
+        .then(function (response) {
+          res(response.data);
+        })
+        .catch(function (error) {
+          res([]);
+        });
+    });
+  };
+
 const goFoodList = async (obj) => {
   // obj = { page: 0, lat: '-6.755916003793253', long: '108.51373109736657' }
   const merchants = await goFoodFetch(obj);
@@ -54,6 +74,27 @@ const goFoodList = async (obj) => {
     };
   });
 };
+
+const merchantDetail = async (id) => {
+    const merchant = await merchantFetch(id);
+    
+    return {
+        id: merchant.restaurant.id,
+        name: merchant.restaurant.name,
+        phone_number: merchant.restaurant.phone_number,
+        address: merchant.restaurant.address,
+        location: merchant.restaurant.location,
+        link: merchant.restaurant.short_link,
+        menu: merchant.items.map(it => {
+            return {
+                name: it.name,
+                price: it.price,
+                image: it.image,
+                weight: it.weight
+            }
+        })
+    }
+  };
 
 const getRandomPoint = (location, distance = 1) => {
   // long, lat
@@ -109,6 +150,15 @@ class RandomGoFood {
     return this.merchants
       .filter((m) => m.price_level)
       .sort((a, b) => b.price_level - a.price_level || a.eta_delivery_minutes - b.eta_delivery_minutes);
+  }
+
+  static async detailMerchants(id) {
+    try {
+        const detail = await merchantDetail(id);
+        return detail;
+    } catch (error) {
+        throw new Error(error);
+    }
   }
 }
 

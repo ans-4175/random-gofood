@@ -12,7 +12,13 @@ const getMerchants = async (lat, long) => {
   return await food.fastestMerchants();
 };
 
+const getMerchantDetail = async (id) => {
+  const detail = await RandomGoFood.detailMerchants(id);
+  return detail;
+};
+
 module.exports = {
   getFakeData,
+  getMerchantDetail,
   getMerchants
 };

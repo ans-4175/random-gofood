@@ -7,6 +7,7 @@ import { renderToString } from 'react-dom/server';
 const bodyParser = require("body-parser");
 const {
   getMerchants,
+  getMerchantDetail,
 } = require('./data');
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
@@ -36,7 +37,14 @@ server
     // TODO: move this API to foldering path if needed
     const { lat, long } = req.query;
     const randData = await getMerchants(lat, long);
-    
+
+    res.json(randData);
+  })
+  .get('/api/merchant/:id', async (req, res) => {
+    // TODO: move this API to foldering path if needed
+    const { id } = req.params;
+    const randData = await getMerchantDetail(id);
+
     res.json(randData);
   })
   .get('/*', (req, res) => {
