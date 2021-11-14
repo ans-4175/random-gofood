@@ -3,6 +3,13 @@ main {
   text-align: center;
 }
 
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  display: block;
+}
+
 wired-card {
   max-width: 600px;
   margin: 0 auto;
@@ -22,15 +29,8 @@ wired-button {
   margin: 8px;
 }
 
-wired-button.btn-copy {
-  background: lightgreen;
-  color: darkolivegreen;
+button {
+  background: lightblue;
+  color: darkcyan;
   margin: 8px;
-}
-
-wired-input {
-  width: 200px;
-  /* font-family: inherit; */
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-  letter-spacing: 0.5em;
 }

@@ -6,13 +6,14 @@ import { sendEvent } from './libs/ga-analytics';
 import { useCurrentPosition } from 'react-use-geolocation';
 
 // error on esm import
-import { WiredButton, WiredCard } from 'wired-elements-react';
-// const { WiredButton, WiredCard } = require('wired-elements-react');
+// import { WiredButton } from 'wired-elements-react';
 
 const { pickNRandom } = require('./libs/helpers');
 
 function Home() {
-  // const [lastDirection, setLastDirection] = useState('');
+  const [fetched, setFetched] = useState(false);
+  const [pickedMerchant, setPickedMerchant] = useState({});
+  const [pickedMenus, setPickedMenus] = useState([]);
   const [posData, posError] = useCurrentPosition();
   const boxCard = useRef({});
 
@@ -28,20 +29,26 @@ function Home() {
   });
 
   const onButton = async () => {
-    const randomWheel = pickNRandom(merchants, 1);
-    const pickedMerchant = randomWheel[0];
-    const detailMerchant = await fetchDetail(pickedMerchant.id);
-    console.log(detailMerchant);
-
     sendEvent({
       category: 'interaction',
       action: `button`,
       label: 'hit'
     });
+
+    const randomMerchants = pickNRandom(merchants, 1);
+    const pickedMerchant = randomMerchants[0];
+    const detailMerchant = await fetchDetail(pickedMerchant.id);
+    const randomMenu = pickNRandom(detailMerchant.menu, 3);
+    
+    setFetched(true);
+    setPickedMerchant(detailMerchant);
+    setPickedMenus(randomMenu);
   };
 
   return (
-    <div>
+    <div className="container">
+      <h3>Random GoFood Picker</h3>
+      <h5>Near You</h5>
       {isLoading || (!posData && !posError) ? (
         <p>Loading...</p>
       ) : isError || posError ? (
@@ -50,14 +57,24 @@ function Home() {
         <>
           {/* <WiredCard elevation={3} ref={boxCard}> */}
             <section>
-              <WiredButton elevation={2} onClick={() => onButton()}>
-                Click Me
-              </WiredButton>
+              <button onClick={() => onButton()}>
+                Show Me Food
+              </button>
+              { (fetched) && (
+                <>
+                  <p>{`"${pickedMerchant.name}"`}</p>
+                  <p><a href={`https://maps.google.com/?q=${pickedMerchant.address}`} target="_blank">{`${pickedMerchant.address}`}</a></p>
+                  <p><a href={pickedMerchant.link} target="_blank">Open in GoFood</a></p>
+                  <span>--MENU--</span>
+                  {pickedMenus.map((menu, key) =>
+                    <div key={key}>
+                      <p>{menu.name}</p>
+                      <p>{menu.price}</p>
+                    </div>
+                  )}
+                </>
+              )}
             </section>
-            <div>
-              <p>Latitude: {posData.coords.latitude}</p>
-              <p>Longitude: {posData.coords.longitude}</p>
-            </div>
           {/* </WiredCard> */}
         </>
       )}
