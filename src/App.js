@@ -45,7 +45,6 @@ function App() {
       action: `button`,
       label: 'spin'
     });
-    console.log('start to spin');
     setFetched(false);
     const newPrizeNumber = Math.floor(Math.random() * wheelData.length);
     setPrizeNumber(newPrizeNumber);
@@ -71,12 +70,11 @@ function App() {
     const pickedMerchant = merchants.find((merch) =>
       merch.name.includes(includeName)
     );
-    setMustSpin(false);
-
     const detailMerchant = await fetchDetail(pickedMerchant.id);
     const randomMenu = pickNRandom(detailMerchant.menu, 3);
 
     setFetched(true);
+    setMustSpin(false);
     setPickedMerchant(detailMerchant);
     setPickedMenus(randomMenu);
   };
