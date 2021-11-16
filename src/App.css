@@ -36,8 +36,31 @@ wired-input {
   letter-spacing: 0.5em;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .text-right {
   text-align: right;
+}
+
+.spacing-x-8 > *:not(:first-child) {
+  margin-left: 8px;
+}
+
+.list-style-none {
+  list-style: none;
+}
+
+.flex {
+  display: flex;
+}
+
+.divider-bull > *:not(:last-child):after {
+  /* HTML code for bull: https://www.toptal.com/designers/htmlarrows/punctuation/bullet. */
+  content: '\2022';
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .foot-notes {
@@ -54,9 +77,24 @@ wired-input {
 .txt-resto {
   font-size: 1.25em;
   line-height: 120%;
+  margin-bottom: 8px;
+}
+
+.txt-address-resto {
+  font-size: 1em;
+  line-height: 100%;
+  margin-top: 0;
 }
 
 .txt-cta {
   font-size: 1em;
   margin: 5px 0;
+}
+
+.result-modal-section {
+  padding: 8px;
+}
+
+.result-modal-action-wrapper {
+  margin-top: 16px;
 }
