@@ -36,6 +36,10 @@ wired-input {
   letter-spacing: 0.5em;
 }
 
+.text-right {
+  text-align: right;
+}
+
 .foot-notes {
   margin-top: 20px;
   font-size: 0.75em;

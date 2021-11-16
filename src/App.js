@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
-import { WiredButton, WiredCard, WiredLink } from 'wired-elements-react';
+import {
+  WiredButton,
+  WiredCard,
+  WiredLink,
+  WiredDialog
+} from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
 import useGoogleAnalytics from './libs/use-analytics';
 import { sendEvent } from './libs/ga-analytics';
@@ -23,6 +28,8 @@ function App() {
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
   // const boxCard = useRef({});
+  // This state is used in tandem with `pickedMerchant`.
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
   const {
     data: merchants,
@@ -77,6 +84,7 @@ function App() {
     setMustSpin(false);
     setPickedMerchant(detailMerchant);
     setPickedMenus(randomMenu);
+    setIsResultModalOpen(true);
   };
 
   useEffect(() => {
@@ -168,6 +176,14 @@ function App() {
               )}
               <p className="foot-notes">&copy; @ans4175</p>
             </section>
+
+            <WiredDialog open={isResultModalOpen}>
+              <div class="text-right">
+                <WiredButton onClick={() => setIsResultModalOpen(false)}>
+                  Close
+                </WiredButton>
+              </div>
+            </WiredDialog>
           </>
         )}
       </WiredCard>
