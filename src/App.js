@@ -95,7 +95,7 @@ function App() {
     <main>
       <WiredCard elevation={3}>
         <h3>Random GoFood Picker</h3>
-        <h5 className='txt-notes'>Near You (beta)</h5>
+        <h5 className="txt-notes">Near You (beta)</h5>
         {!posData && !posError ? (
           <p>Getting browser's location...</p>
         ) : isFetching || isLoading ? (
@@ -138,12 +138,12 @@ function App() {
             <section>
               {fetched && (
                 <>
-                  <p className='txt-resto'>{`"${pickedMerchant.name}"`}</p>
+                  <p className="txt-resto">{`"${pickedMerchant.name}"`}</p>
                   <WiredLink
                     href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
                     target="_blank"
                     rel="noopener"
-                    className='txt-cta'
+                    className="txt-cta"
                   >
                     Open in Map
                   </WiredLink>
@@ -152,7 +152,7 @@ function App() {
                     href={pickedMerchant.link}
                     target="_blank"
                     rel="noopener"
-                    className='txt-cta'
+                    className="txt-cta"
                   >
                     Open in GoFood
                   </WiredLink>
@@ -166,7 +166,7 @@ function App() {
               ))} */}
                 </>
               )}
-              <p className='foot-notes'>&copy; @ans4175</p>
+              <p className="foot-notes">&copy; @ans4175</p>
             </section>
           </>
         )}
