@@ -104,7 +104,6 @@ function App() {
     setMustSpin(false);
     setPickedMerchant(detailMerchant);
     setPickedMenus(randomMenu);
-    setIsResultModalOpen(true);
   };
 
   useEffect(() => {
@@ -158,20 +157,47 @@ function App() {
                       >
                         RE-LOAD
                       </WiredButton>
-                      {fetched && (
-                        <WiredButton
-                          elevation={2}
-                          onClick={() => setIsResultModalOpen(true)}
-                        >
-                          Show result
-                        </WiredButton>
-                      )}
                     </>
                   )}
                 </>
               )}
             </section>
             <section>
+              {fetched && (
+                <>
+                  <p className="txt-resto text-center">{pickedMerchant.name}</p>
+
+                  <div className="text-center spacing-x-8">
+                    <WiredLink
+                      href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
+                    >
+                      Open in Map
+                    </WiredLink>
+
+                    <span>&bull;</span>
+
+                    <WiredLink
+                      href={pickedMerchant.link}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
+                    >
+                      Open in GoFood
+                    </WiredLink>
+                  </div>
+
+                  <WiredButton
+                    elevation={2}
+                    onClick={() => setIsResultModalOpen(true)}
+                  >
+                    See restaurant detail
+                  </WiredButton>
+                </>
+              )}
+
               <p className="foot-notes">&copy; @ans4175</p>
             </section>
 
@@ -181,14 +207,18 @@ function App() {
                   <div className="text-center">
                     <div>
                       <p className="txt-resto">{pickedMerchant.name}</p>
-                      <p className="txt-address-resto">
-                        {pickedMerchant.address}
-                      </p>
+
+                      <p>More information will be shown. Stay tuned!</p>
 
                       <ul className="list-style-none divider-bull flex">
-                        {pickedMerchant.distance_km && (
-                          <li>{pickedMerchant.distance_km} km</li>
-                        )}
+                        {pickedMerchant.eta_cooking_minutes ||
+                        pickedMerchant.eta_delivery_minutes ? (
+                          <li>
+                            {pickedMerchant.eta_cooking_minutes +
+                              pickedMerchant.eta_delivery_minutes}{' '}
+                            minutes
+                          </li>
+                        ) : null}
                         {pickedMerchant.price_level && (
                           <li>
                             {Array.from(pickedMerchant.price_level).map(
