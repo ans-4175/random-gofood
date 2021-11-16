@@ -23,7 +23,7 @@ wired-button {
 }
 
 wired-button.btn-reset {
-  background: lightcoral;
+  background: lightsalmon;
   color: darkred;
   margin: 8px;
 }
@@ -37,7 +37,22 @@ wired-input {
 }
 
 .foot-notes {
-  font-size: 0.65em;
+  margin-top: 20px;
+  font-size: 0.75em;
   color: grey;
-  line-height: 140%;
+  line-height: 120%;
+}
+
+.txt-notes {
+  color: darkorange;
+}
+
+.txt-resto {
+  font-size: 1.25em;
+  line-height: 120%;
+}
+
+.txt-cta {
+  font-size: 1em;
+  margin: 5px 0;
 }
