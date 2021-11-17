@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const BASE_API = 'https://random-gofood-api.vercel.app';
 
-const fetchRandom = async (lat, long) => {
+const fetchRandom = async (lat, long, type) => {
   const config = {
     method: 'get',
     url: `${BASE_API}/random`,
@@ -11,6 +11,7 @@ const fetchRandom = async (lat, long) => {
       long
     }
   };
+  if (type !== 'ALL') config.params['type'] = type;
   const res = await axios(config);
   return res.data;
 };

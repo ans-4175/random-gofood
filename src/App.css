@@ -56,3 +56,7 @@ wired-input {
   font-size: 1em;
   margin: 5px 0;
 }
+
+.txt-radio {
+  font-size: 0.6em;
+}
