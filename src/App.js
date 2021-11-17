@@ -123,10 +123,10 @@ function App() {
     const detailMerchant = await fetchDetail(pickedMerchant.id);
     const randomMenu = pickNRandom(detailMerchant.menu, 3);
 
-    setFetched(true);
-    setMustSpin(false);
     setPickedMerchant(pickedMerchant);
     setDetailMerchant(detailMerchant);
+    setMustSpin(false);
+    setFetched(true);
     setPickedMenus(randomMenu);
   };
 
@@ -224,7 +224,7 @@ function App() {
                     <span>&bull;</span>
 
                     <WiredLink
-                      href={pickedMerchant.link}
+                      href={detailMerchant.link}
                       target="_blank"
                       rel="noopener"
                       className="txt-cta"
