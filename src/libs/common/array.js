@@ -3,7 +3,7 @@ export function pickNRandom(arr, n) {
   if (n >= arr.length) {
     return arr;
   }
-  
+
   // Create 2 arrays, 1 for result, 1 for the "source pool".
   const result = [];
   const source = [...arr];
