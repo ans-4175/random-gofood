@@ -41,6 +41,7 @@ function App() {
   const [fetched, setFetched] = useState(false);
   /** @type [Merchant, Function] */
   const [pickedMerchant, setPickedMerchant] = useState({});
+  const [detailMerchant, setDetailMerchant] = useState({});
   // eslint-disable-next-line
   const [pickedMenus, setPickedMenus] = useState([]);
   const [wheelData, setWheelData] = useState([]);
@@ -102,7 +103,8 @@ function App() {
 
     setFetched(true);
     setMustSpin(false);
-    setPickedMerchant(detailMerchant);
+    setPickedMerchant(pickedMerchant);
+    setDetailMerchant(detailMerchant);
     setPickedMenus(randomMenu);
   };
 
@@ -117,12 +119,13 @@ function App() {
       setWheelData(newWheelData);
     }
   }, [merchants]);
-
+  console.log(pickedMerchant);
+  console.log(detailMerchant);
   return (
     <main>
       <WiredCard elevation={3}>
-        <h3>Random GoFood Picker</h3>
-        <h5 className="txt-notes">Near You (beta)</h5>
+        <h1 className="app-title">Random GoFood Picker</h1>
+        <h2 className="txt-notes">Near You (beta)</h2>
         {!posData && !posError ? (
           <p>Getting browser's location...</p>
         ) : isFetching || isLoading ? (
@@ -204,13 +207,14 @@ function App() {
             <WiredDialog open={isResultModalOpen}>
               {fetched && (
                 <section className="result-modal-section">
-                  <div className="text-center">
+                  <div className="result-modal-resto-information">
                     <div>
-                      <p className="txt-resto">{pickedMerchant.name}</p>
+                      <h2 className="txt-resto text-center">
+                        {pickedMerchant.name}
+                      </h2>
 
-                      <p>More information will be shown. Stay tuned!</p>
-
-                      <ul className="list-style-none divider-bull flex">
+                      {/* TODO(imballinst): instead of bull-separated, we can add SVG icons instead. */}
+                      <ul className="list-style-none divider-bull flex txt-resto-info">
                         {pickedMerchant.eta_cooking_minutes ||
                         pickedMerchant.eta_delivery_minutes ? (
                           <li>
@@ -221,12 +225,13 @@ function App() {
                         ) : null}
                         {pickedMerchant.price_level && (
                           <li>
-                            {Array.from(pickedMerchant.price_level).map(
-                              (_, idx) => (
-                                <span key={idx}>$</span>
-                              )
-                            )}
+                            <PriceLevel level={pickedMerchant.price_level} />
                           </li>
+                        )}
+                        {detailMerchant.phone_number !== '' && (
+                          // For some reason, the `phone_number` field in the GoFood List API
+                          // is always an empty string. Hence, we need to use `detailMerchant` for this one.
+                          <li>{detailMerchant.phone_number}</li>
                         )}
                       </ul>
                     </div>
@@ -244,7 +249,7 @@ function App() {
                       <span>&bull;</span>
 
                       <WiredLink
-                        href={pickedMerchant.link}
+                        href={detailMerchant.link}
                         target="_blank"
                         rel="noopener"
                         className="txt-cta"
@@ -252,14 +257,24 @@ function App() {
                         Open in GoFood
                       </WiredLink>
                     </div>
-                    {/* <span>--MENU--</span>
-              {pickedMenus.map((menu, key) => (
-                <div key={key}>
-                  <p>{menu.name}</p>
-                  <img alt={menu.name} src={menu.image} />
-                  <p>{menu.price}</p>
-                </div>
-              ))} */}
+                  </div>
+
+                  <h3 className="cuisine-title text-center">Cuisines</h3>
+
+                  <div className="result-modal-resto-cuisines">
+                    <ul className="list-style-none">
+                      {pickedMenus.map((menu, key) => (
+                        <li key={key}>
+                          <h4 className="menu-title">{menu.name}</h4>
+                          <img
+                            className="menu-image"
+                            alt={menu.name}
+                            src={menu.image}
+                          />
+                          <p>{menu.price}</p>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
                   <div class="text-right result-modal-action-wrapper">
@@ -278,3 +293,21 @@ function App() {
 }
 
 export default App;
+
+// Composing components.
+function PriceLevel({ level }) {
+  // This is the number of "greyed out" $ characters.
+  const numberOfInactiveCharacters = 4 - level;
+
+  return (
+    <>
+      <span>{''.padEnd(level, '$')}</span>
+
+      {numberOfInactiveCharacters > 0 && (
+        <span className="txt-resto-price-info-grey">
+          {''.padEnd(numberOfInactiveCharacters, '$')}
+        </span>
+      )}
+    </>
+  );
+}

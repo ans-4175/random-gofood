@@ -50,6 +50,8 @@ wired-input {
 
 .list-style-none {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .flex {
@@ -61,6 +63,7 @@ wired-input {
   content: '\2022';
   margin-left: 8px;
   margin-right: 8px;
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .foot-notes {
@@ -70,20 +73,35 @@ wired-input {
   line-height: 120%;
 }
 
+/* Source: http://zuga.net/articles/html-heading-elements/. */
+/* Previously the app title and subtitle used h3 and h5, respectively. */
+/* Hence, this 1.17em and 0.83em are "re-applied" to ensure that the font size stays the same */
+/* despite the HTML heading tag is different. */
+.app-title {
+  font-size: 1.17em;
+}
+
 .txt-notes {
+  font-size: 0.83em;
   color: darkorange;
 }
 
 .txt-resto {
   font-size: 1.25em;
   line-height: 120%;
-  margin-bottom: 8px;
+  margin-top: 0;
+  margin-bottom: 4px;
 }
 
-.txt-address-resto {
-  font-size: 1em;
-  line-height: 100%;
-  margin-top: 0;
+.txt-resto-info {
+  font-size: 0.875em;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.txt-resto-price-info-grey {
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .txt-cta {
@@ -92,9 +110,42 @@ wired-input {
 }
 
 .result-modal-section {
-  padding: 8px;
+  max-height: 100vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-modal-resto-information {
+  display: flex;
+  flex-grow: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-modal-resto-cuisines {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
 }
 
 .result-modal-action-wrapper {
   margin-top: 16px;
+}
+
+/* Menu stuff. */
+.cuisine-title {
+  margin-bottom: 8px;
+}
+
+.menu-title {
+  font-size: 1em;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.menu-image {
+  width: 100%;
 }
