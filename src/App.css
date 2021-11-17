@@ -48,6 +48,10 @@ wired-input {
   margin-left: 8px;
 }
 
+.spacing-y-8 > *:not(:first-child) {
+  margin-top: 8px;
+}
+
 .list-style-none {
   list-style: none;
   margin: 0;
@@ -135,9 +139,32 @@ wired-input {
   margin-top: 16px;
 }
 
-/* Menu stuff. */
-.cuisine-title {
-  margin-bottom: 8px;
+.cuisine-section-title {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+/* Menu card stuff. */
+.menu-list-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-image {
+  width: 25%;
+}
+
+.menu-image > img {
+  width: 100%;
+}
+
+.menu-image > svg {
+  fill: rgba(0, 0, 0, 0.5);
+}
+
+.menu-information-wrapper {
+  padding: 8px;
+  padding-top: 0;
 }
 
 .menu-title {
@@ -146,6 +173,7 @@ wired-input {
   margin-bottom: 0;
 }
 
-.menu-image {
-  width: 100%;
+.menu-price {
+  margin-top: 8px;
+  margin-bottom: 0;
 }

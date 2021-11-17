@@ -14,6 +14,8 @@ import { Wheel } from 'react-custom-roulette';
 
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
+import PhotoPlaceholder from './components/PhotoPlaceholder';
+
 import './App.css';
 
 /**
@@ -119,8 +121,7 @@ function App() {
       setWheelData(newWheelData);
     }
   }, [merchants]);
-  console.log(pickedMerchant);
-  console.log(detailMerchant);
+
   return (
     <main>
       <WiredCard elevation={3}>
@@ -259,25 +260,25 @@ function App() {
                     </div>
                   </div>
 
-                  <h3 className="cuisine-title text-center">Cuisines</h3>
+                  <h3 className="cuisine-section-title text-center">
+                    Cuisines
+                  </h3>
 
                   <div className="result-modal-resto-cuisines">
-                    <ul className="list-style-none">
+                    <ul className="list-style-none spacing-y-8">
                       {pickedMenus.map((menu, key) => (
                         <li key={key}>
-                          <h4 className="menu-title">{menu.name}</h4>
-                          <img
-                            className="menu-image"
-                            alt={menu.name}
-                            src={menu.image}
+                          <CuisineListItem
+                            name={menu.name}
+                            image={menu.image}
+                            price={menu.price}
                           />
-                          <p>{menu.price}</p>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div class="text-right result-modal-action-wrapper">
+                  <div className="text-right result-modal-action-wrapper">
                     <WiredButton onClick={() => setIsResultModalOpen(false)}>
                       Close
                     </WiredButton>
@@ -309,5 +310,20 @@ function PriceLevel({ level }) {
         </span>
       )}
     </>
+  );
+}
+
+function CuisineListItem({ name, image, price }) {
+  return (
+    <article className="menu-list-item">
+      <div className="menu-image">
+        {image ? <img alt={name} src={image} /> : <PhotoPlaceholder />}
+      </div>
+
+      <div className="menu-information-wrapper">
+        <h4 className="menu-title">{name}</h4>
+        <p className="menu-price">{price}</p>
+      </div>
+    </article>
   );
 }
