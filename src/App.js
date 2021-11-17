@@ -242,7 +242,7 @@ function App() {
                 </>
               )}
 
-              <p className="foot-notes">&copy; @ans4175</p>
+              <p className="foot-notes">&copy; @ans4175, @ajiballinst</p>
             </section>
 
             <WiredDialog open={isResultModalOpen}>

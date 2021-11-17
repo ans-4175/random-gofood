@@ -36,6 +36,10 @@ wired-input {
   letter-spacing: 0.5em;
 }
 
+.text-left {
+  text-align: left;
+}
+
 .text-center {
   text-align: center;
 }
