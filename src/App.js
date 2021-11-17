@@ -259,9 +259,10 @@ function App() {
                         {pickedMerchant.eta_cooking_minutes ||
                         pickedMerchant.eta_delivery_minutes ? (
                           <li>
-                            {pickedMerchant.eta_cooking_minutes +
-                              pickedMerchant.eta_delivery_minutes}{' '}
-                            minutes
+                            <TotalWaitingTime
+                              preparingTime={pickedMerchant.eta_cooking_minutes}
+                              deliveryTime={pickedMerchant.eta_delivery_minutes}
+                            />
                           </li>
                         ) : null}
                         {pickedMerchant.price_level && (
@@ -335,7 +336,7 @@ function App() {
 
 export default App;
 
-// Composing components.
+// Composing components/functions.
 function PriceLevel({ level }) {
   // This is the number of "greyed out" $ characters.
   const numberOfInactiveCharacters = 4 - level;
@@ -353,6 +354,13 @@ function PriceLevel({ level }) {
   );
 }
 
+/**
+ * Renders a cuisine's image, name, and price.
+ * @param {Object} props
+ * @param {string} props.name
+ * @param {string} props.image
+ * @param {number} props.price
+ */
 function CuisineListItem({ name, image, price }) {
   return (
     <article className="menu-list-item">
@@ -362,8 +370,16 @@ function CuisineListItem({ name, image, price }) {
 
       <div className="menu-information-wrapper">
         <h4 className="menu-title">{name}</h4>
-        <p className="menu-price">{price}</p>
+        <p className="menu-price">{price.toLocaleString('en-ID')}</p>
       </div>
     </article>
   );
+}
+
+function TotalWaitingTime({ preparingTime = 0, deliveryTime = 0 }) {
+  // Number(null) resolves to `0`, so we can ignore that case.
+  // When the props are undefined, then they will fall back to 0.
+  const total = Number(preparingTime) + Number(deliveryTime);
+
+  return <span>{total} minutes</span>;
 }
