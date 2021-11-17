@@ -36,6 +36,40 @@ wired-input {
   letter-spacing: 0.5em;
 }
 
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.spacing-x-8 > *:not(:first-child) {
+  margin-left: 8px;
+}
+
+.spacing-y-8 > *:not(:first-child) {
+  margin-top: 8px;
+}
+
+.list-style-none {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.flex {
+  display: flex;
+}
+
+.divider-bull > *:not(:last-child):after {
+  /* HTML code for bull: https://www.toptal.com/designers/htmlarrows/punctuation/bullet. */
+  content: '\2022';
+  margin-left: 8px;
+  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
 .foot-notes {
   margin-top: 20px;
   font-size: 0.75em;
@@ -43,13 +77,35 @@ wired-input {
   line-height: 120%;
 }
 
+/* Source: http://zuga.net/articles/html-heading-elements/. */
+/* Previously the app title and subtitle used h3 and h5, respectively. */
+/* Hence, this 1.17em and 0.83em are "re-applied" to ensure that the font size stays the same */
+/* despite the HTML heading tag is different. */
+.app-title {
+  font-size: 1.17em;
+}
+
 .txt-notes {
+  font-size: 0.83em;
   color: darkorange;
 }
 
 .txt-resto {
   font-size: 1.25em;
   line-height: 120%;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.txt-resto-info {
+  font-size: 0.875em;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.txt-resto-price-info-grey {
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .txt-cta {
@@ -59,4 +115,69 @@ wired-input {
 
 .txt-radio {
   font-size: 0.6em;
+}
+
+.result-modal-section {
+  max-height: 100vh;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-modal-resto-information {
+  display: flex;
+  flex-grow: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-modal-resto-cuisines {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+
+.result-modal-action-wrapper {
+  margin-top: 16px;
+}
+
+.cuisine-section-title {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+/* Menu card stuff. */
+.menu-list-item {
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-image {
+  width: 25%;
+}
+
+.menu-image > img {
+  width: 100%;
+}
+
+.menu-image > svg {
+  fill: rgba(0, 0, 0, 0.5);
+}
+
+.menu-information-wrapper {
+  padding: 8px;
+  padding-top: 0;
+}
+
+.menu-title {
+  font-size: 1em;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.menu-price {
+  margin-top: 8px;
+  margin-bottom: 0;
 }

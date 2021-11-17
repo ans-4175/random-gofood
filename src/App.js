@@ -4,6 +4,7 @@ import {
   WiredButton,
   WiredCard,
   WiredLink,
+  WiredDialog,
   WiredRadioGroup,
   WiredRadio
 } from 'wired-elements-react';
@@ -15,14 +16,37 @@ import { Wheel } from 'react-custom-roulette';
 
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
+
 import './App.css';
+import DetailMerchant from './components/DetailMerchant';
+
+/**
+ * TODO(imballinst): probably it'll be better if we can provide a typing that works
+ * across the `random-gofood` and `random-gofood-api`. This typing is intended so that
+ * devs don't have to "guess" the object data structure without looking another source.
+ * @typedef {Object} Merchant
+ * @property {string} id example: "2874043e-7595-40e3-af90-90c3012783a3".
+ * @property {boolean} active example: true.
+ * @property {string} is_open example: "OPEN".
+ * @property {string} address example: "Jl. Amil No. 16, Pasar Minggu, Jakarta".
+ * @property {string} phone_number example: "".
+ * @property {number} price_level example: 2.
+ * @property {string} name example: "SOTO AYAM NASI RAMES 84 AY, AHMAD HERMANTO".
+ * @property {string} tag example: "SOTO_BAKSO_SOP,ANEKA_AYAM_BEBEK".
+ * @property {number} distance_km example: 0.
+ * @property {string} location example: "-6.2729465,106.8380703".
+ * @property {number} eta_delivery_minutes example: 17.
+ * @property {number} eta_cooking_minutes example: 8.
+ */
 
 function App() {
   useGoogleAnalytics();
 
   const [typeSelect, setTypeSelect] = useState('ALL');
   const [fetched, setFetched] = useState(false);
+  /** @type [Merchant, Function] */
   const [pickedMerchant, setPickedMerchant] = useState({});
+  const [detailMerchant, setDetailMerchant] = useState({});
   // eslint-disable-next-line
   const [pickedMenus, setPickedMenus] = useState([]);
   const [wheelData, setWheelData] = useState([]);
@@ -30,6 +54,8 @@ function App() {
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
   // const boxCard = useRef({});
+  // This state is used in tandem with `pickedMerchant`.
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
   const {
     data: merchants,
@@ -99,7 +125,8 @@ function App() {
 
     setFetched(true);
     setMustSpin(false);
-    setPickedMerchant(detailMerchant);
+    setPickedMerchant(pickedMerchant);
+    setDetailMerchant(detailMerchant);
     setPickedMenus(randomMenu);
   };
 
@@ -118,8 +145,8 @@ function App() {
   return (
     <main>
       <WiredCard elevation={3}>
-        <h3>Random GoFood Picker</h3>
-        <h5 className="txt-notes">Near You (beta)</h5>
+        <h1 className="app-title">Random GoFood Picker</h1>
+        <h2 className="txt-notes">Near You (beta)</h2>
         <WiredRadioGroup
           selected={typeSelect}
           onselected={(e) => handleCheckbox(e.detail.selected)}
@@ -182,36 +209,53 @@ function App() {
             <section>
               {fetched && (
                 <>
-                  <p className="txt-resto">{`"${pickedMerchant.name}"`}</p>
-                  <WiredLink
-                    href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
-                    target="_blank"
-                    rel="noopener"
-                    className="txt-cta"
+                  <p className="txt-resto text-center">{pickedMerchant.name}</p>
+
+                  <div className="text-center spacing-x-8">
+                    <WiredLink
+                      href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
+                    >
+                      Open in Map
+                    </WiredLink>
+
+                    <span>&bull;</span>
+
+                    <WiredLink
+                      href={pickedMerchant.link}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
+                    >
+                      Open in GoFood
+                    </WiredLink>
+                  </div>
+
+                  <WiredButton
+                    elevation={2}
+                    onClick={() => setIsResultModalOpen(true)}
                   >
-                    Open in Map
-                  </WiredLink>
-                  <br />
-                  <WiredLink
-                    href={pickedMerchant.link}
-                    target="_blank"
-                    rel="noopener"
-                    className="txt-cta"
-                  >
-                    Open in GoFood
-                  </WiredLink>
-                  {/* <span>--MENU--</span>
-              {pickedMenus.map((menu, key) => (
-                <div key={key}>
-                  <p>{menu.name}</p>
-                  <img alt={menu.name} src={menu.image} />
-                  <p>{menu.price}</p>
-                </div>
-              ))} */}
+                    See restaurant detail
+                  </WiredButton>
                 </>
               )}
+
               <p className="foot-notes">&copy; @ans4175</p>
             </section>
+
+            <WiredDialog open={isResultModalOpen}>
+              {fetched && (
+                <DetailMerchant
+                  detailMerchant={detailMerchant}
+                  pickedMerchant={pickedMerchant}
+                  setIsResultModalOpen={setIsResultModalOpen}
+                  isResultModalOpen={isResultModalOpen}
+                  pickedMenus={pickedMenus}
+                />
+              )}
+            </WiredDialog>
           </>
         )}
       </WiredCard>
