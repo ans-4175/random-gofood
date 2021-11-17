@@ -113,6 +113,10 @@ wired-input {
   margin: 5px 0;
 }
 
+.txt-radio {
+  font-size: 0.6em;
+}
+
 .result-modal-section {
   max-height: 100vh;
   padding: 0;

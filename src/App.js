@@ -4,7 +4,9 @@ import {
   WiredButton,
   WiredCard,
   WiredLink,
-  WiredDialog
+  WiredDialog,
+  WiredRadioGroup,
+  WiredRadio
 } from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
 import useGoogleAnalytics from './libs/use-analytics';
@@ -40,6 +42,7 @@ import './App.css';
 function App() {
   useGoogleAnalytics();
 
+  const [typeSelect, setTypeSelect] = useState('ALL');
   const [fetched, setFetched] = useState(false);
   /** @type [Merchant, Function] */
   const [pickedMerchant, setPickedMerchant] = useState({});
@@ -63,7 +66,12 @@ function App() {
     refetch
   } = useQuery(
     ['merchants', 'posData'],
-    () => fetchRandom(posData.coords.latitude, posData.coords.longitude),
+    () =>
+      fetchRandom(
+        posData.coords.latitude,
+        posData.coords.longitude,
+        typeSelect
+      ),
     {
       enabled: !!posData
     }
@@ -87,6 +95,18 @@ function App() {
       action: `button`,
       label: 'reset'
     });
+    setFetched(false);
+    setMustSpin(false);
+    refetch();
+  };
+
+  const handleCheckbox = (selected) => {
+    sendEvent({
+      category: 'interaction',
+      action: `checkbox`,
+      label: selected
+    });
+    setTypeSelect(selected);
     setFetched(false);
     setMustSpin(false);
     refetch();
@@ -127,6 +147,26 @@ function App() {
       <WiredCard elevation={3}>
         <h1 className="app-title">Random GoFood Picker</h1>
         <h2 className="txt-notes">Near You (beta)</h2>
+        <WiredRadioGroup
+          selected={typeSelect}
+          onselected={(e) => handleCheckbox(e.detail.selected)}
+        >
+          <WiredRadio className="txt-radio" name="ALL">
+            Semua
+          </WiredRadio>
+          <WiredRadio className="txt-radio" name="FOOD">
+            Makanan Berat
+          </WiredRadio>
+          <WiredRadio className="txt-radio" name="DRINK">
+            Minuman
+          </WiredRadio>
+          <WiredRadio className="txt-radio" name="SNACK">
+            Cemilan
+          </WiredRadio>
+          <WiredRadio className="txt-radio" name="COFFEE">
+            Aneka Kopi
+          </WiredRadio>
+        </WiredRadioGroup>
         {!posData && !posError ? (
           <p>Getting browser's location...</p>
         ) : isFetching || isLoading ? (

@@ -1,13 +1,21 @@
 export function pickNRandom(arr, n) {
-  let result = new Array(n),
-    len = arr.length,
-    taken = new Array(len);
-  //   if (n > len) throw new RangeError('getRandom: more elements taken than available');
-  while (n-- && result.length <= len) {
-    const x = Math.floor(Math.random() * len);
-    result[n] = arr[x in taken ? taken[x] : x];
-    taken[x] = --len in taken ? taken[len] : len;
+  // When `n` is more than or equal to the number of elements in `arr`, early return.
+  if (n >= arr.length) {
+    return arr;
   }
+
+  // Create 2 arrays, 1 for result, 1 for the "source pool".
+  const result = [];
+  const source = [...arr];
+
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(Math.random() * source.length);
+    // By splicing here, we also ensure that elements in `result` will be unique,
+    // since elements that are spliced won't be picked anymore.
+    const [spliced] = source.splice(idx, 1);
+    result.push(spliced);
+  }
+
   return result;
 }
 
