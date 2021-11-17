@@ -362,6 +362,10 @@ function PriceLevel({ level }) {
  * @param {number} props.price
  */
 function CuisineListItem({ name, image, price }) {
+  // Replace the comma with dot, because in Indonesia, we use the comma
+  // for the decimals below the integer number instead.
+  const formattedPrice = price.toLocaleString('en-ID').replace(/,/g, '.');
+
   return (
     <article className="menu-list-item">
       <div className="menu-image">
@@ -370,7 +374,7 @@ function CuisineListItem({ name, image, price }) {
 
       <div className="menu-information-wrapper">
         <h4 className="menu-title">{name}</h4>
-        <p className="menu-price">{price.toLocaleString('en-ID')}</p>
+        <p className="menu-price">{formattedPrice}</p>
       </div>
     </article>
   );
