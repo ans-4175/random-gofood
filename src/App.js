@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
   WiredButton,
@@ -15,9 +15,11 @@ import { sendEvent } from './libs/ga-analytics';
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
 
+import { Wheel } from 'react-custom-roulette';
+
 import './App.css';
 import DetailMerchant from './components/DetailMerchant';
-import WheelRandomizer from './components/WheelRandomizer';
+import TextBlinkRandomizer from './components/TextBlinkRandomizer';
 
 /**
  * TODO(imballinst): probably it'll be better if we can provide a typing that works
@@ -41,19 +43,26 @@ import WheelRandomizer from './components/WheelRandomizer';
 function App() {
   useGoogleAnalytics();
 
-  const [typeSelect, setTypeSelect] = useState('ALL');
-  const [fetched, setFetched] = useState(false);
-  /** @type [Merchant, Function] */
-  const [pickedMerchant, setPickedMerchant] = useState({});
-  const [detailMerchant, setDetailMerchant] = useState({});
-  // eslint-disable-next-line
-  const [pickedMenus, setPickedMenus] = useState([]);
-  const [merchantsList, setWheelData] = useState(undefined);
-  const [mustStartRandomizing, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
-  // const boxCard = useRef({});
-  // This state is used in tandem with `pickedMerchant`.
+  const [typeSelect, setTypeSelect] = useState('ALL');
+
+  // `undefined` states mean not picked yet.
+  // When it is defined, then it means these 2 states have been picked/fetched.
+  /** @type [Merchant | undefined, Function] */
+  const [pickedMerchant, setPickedMerchant] = useState(undefined);
+  const [detailMerchant, setDetailMerchant] = useState(undefined);
+
+  // States required for randomizers.
+  const [optionsList, setOptionsList] = useState(undefined);
+  const [mustStartRandomizing, setMustStartRandomizing] = useState(false);
+  const [prizeNumber, setPrizeNumber] = useState(0);
+
+  // We want to fetch the merchant when we are randomizing.
+  // This will ensure that the result appear immediately after the wheel
+  // finished spinning or text finished randomizing. After all,
+  // we get the "prize number" at the start.
+  const [isMerchantDetailShown, setIsMerchantDetailShown] = useState(false);
+  const [pickedMenus, setPickedMenus] = useState([]);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
   const {
@@ -76,16 +85,41 @@ function App() {
     }
   );
 
-  const handleSpinClick = () => {
+  const handleSpinClick = async () => {
     sendEvent({
       category: 'interaction',
       action: `button`,
       label: 'spin'
     });
-    setFetched(false);
-    const newPrizeNumber = Math.floor(Math.random() * merchantsList.length);
+
+    const newPrizeNumber = Math.floor(Math.random() * optionsList.length);
+    const includeName = optionsList[prizeNumber]['option'].substring(
+      0,
+      optionsList[prizeNumber]['option'].length - 3
+    );
+    const pickedMerchant = merchants.find((merch) =>
+      merch.name.includes(includeName)
+    );
+
+    // Set the prize number and picked merchant, then start randomizing.
     setPrizeNumber(newPrizeNumber);
-    setMustSpin(true);
+    setPickedMerchant(pickedMerchant);
+    setMustStartRandomizing(true);
+
+    // In the meantime, we fetch the picked merchant so that when
+    // the randomizer finishes, it can immediately appear.
+    const detailMerchant = await fetchDetail(pickedMerchant.id);
+    const randomMenu = pickNRandom(detailMerchant.menu, 3);
+    setDetailMerchant(detailMerchant);
+    setPickedMenus(randomMenu);
+  };
+
+  const resetStates = () => {
+    setPickedMerchant(undefined);
+    setDetailMerchant(undefined);
+    setIsMerchantDetailShown(false);
+    setMustStartRandomizing(false);
+    refetch();
   };
 
   const handleResetClick = () => {
@@ -94,9 +128,7 @@ function App() {
       action: `button`,
       label: 'reset'
     });
-    setFetched(false);
-    setMustSpin(false);
-    refetch();
+    resetStates();
   };
 
   const handleCheckbox = (selected) => {
@@ -106,28 +138,13 @@ function App() {
       label: selected
     });
     setTypeSelect(selected);
-    setFetched(false);
-    setMustSpin(false);
-    refetch();
+    resetStates();
   };
 
-  const onFinishRandomizing = async () => {
-    const includeName = merchantsList[prizeNumber]['option'].substring(
-      0,
-      merchantsList[prizeNumber]['option'].length - 3
-    );
-    const pickedMerchant = merchants.find((merch) =>
-      merch.name.includes(includeName)
-    );
-    const detailMerchant = await fetchDetail(pickedMerchant.id);
-    const randomMenu = pickNRandom(detailMerchant.menu, 3);
-
-    setPickedMerchant(pickedMerchant);
-    setDetailMerchant(detailMerchant);
-    setMustSpin(false);
-    setFetched(true);
-    setPickedMenus(randomMenu);
-  };
+  const onFinishRandomizing = useCallback(() => {
+    setIsMerchantDetailShown(true);
+    setMustStartRandomizing(false);
+  }, []);
 
   useEffect(() => {
     if (merchants) {
@@ -137,7 +154,7 @@ function App() {
           option: `${merch.name.substring(0, 25)}...`
         };
       });
-      setWheelData(newWheelData);
+      setOptionsList(newWheelData);
     }
   }, [merchants]);
 
@@ -168,24 +185,49 @@ function App() {
         </WiredRadioGroup>
         {!posData && !posError ? (
           <p>Getting browser's location...</p>
-        ) : isFetching || isLoading ? (
+        ) : isFetching || isLoading || optionsList === undefined ? (
           <p>Loading merchants data...</p>
         ) : isError || posError ? (
           <p>Error: {isError ? error.message : posError.message}</p>
         ) : (
           <>
             <section>
-              <WheelRandomizer
+              {/* <Wheel
+                mustStartSpinning={mustStartRandomizing}
+                prizeNumber={prizeNumber}
+                outerBorderWidth={3}
+                fontSize={10}
+                radiusLineWidth={3}
+                data={optionsList}
+                onStopSpinning={onFinishRandomizing}
+              /> */}
+
+              <TextBlinkRandomizer
                 onFinishRandomizing={onFinishRandomizing}
                 mustStartRandomizing={mustStartRandomizing}
-                prizeNumber={prizeNumber}
-                merchantsList={merchantsList}
-                onStartRandomizing={handleSpinClick}
-                onReloadMerchantsList={handleResetClick}
+                pickedMerchant={pickedMerchant}
+                optionsList={optionsList}
               />
+
+              {mustStartRandomizing ? (
+                <p>Waiting to spin...</p>
+              ) : (
+                <div>
+                  <WiredButton elevation={2} onClick={handleSpinClick}>
+                    SPIN
+                  </WiredButton>
+                  <WiredButton
+                    className="btn-reset"
+                    elevation={2}
+                    onClick={handleResetClick}
+                  >
+                    RE-LOAD
+                  </WiredButton>
+                </div>
+              )}
             </section>
             <section>
-              {fetched && (
+              {detailMerchant !== undefined && isMerchantDetailShown && (
                 <>
                   <h2 className="txt-resto text-center">
                     {pickedMerchant.name}
@@ -226,7 +268,7 @@ function App() {
             </section>
 
             <WiredDialog open={isResultModalOpen}>
-              {fetched && (
+              {detailMerchant !== undefined && (
                 <DetailMerchant
                   detailMerchant={detailMerchant}
                   pickedMerchant={pickedMerchant}
