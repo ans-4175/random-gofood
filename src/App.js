@@ -12,13 +12,12 @@ import { useCurrentPosition } from 'react-use-geolocation';
 import useGoogleAnalytics from './libs/use-analytics';
 import { sendEvent } from './libs/ga-analytics';
 
-import { Wheel } from 'react-custom-roulette';
-
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
 
 import './App.css';
 import DetailMerchant from './components/DetailMerchant';
+import WheelRandomizer from './components/WheelRandomizer';
 
 /**
  * TODO(imballinst): probably it'll be better if we can provide a typing that works
@@ -49,8 +48,8 @@ function App() {
   const [detailMerchant, setDetailMerchant] = useState({});
   // eslint-disable-next-line
   const [pickedMenus, setPickedMenus] = useState([]);
-  const [wheelData, setWheelData] = useState([]);
-  const [mustSpin, setMustSpin] = useState(false);
+  const [merchantsList, setWheelData] = useState(undefined);
+  const [mustStartRandomizing, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
   // const boxCard = useRef({});
@@ -84,7 +83,7 @@ function App() {
       label: 'spin'
     });
     setFetched(false);
-    const newPrizeNumber = Math.floor(Math.random() * wheelData.length);
+    const newPrizeNumber = Math.floor(Math.random() * merchantsList.length);
     setPrizeNumber(newPrizeNumber);
     setMustSpin(true);
   };
@@ -112,10 +111,10 @@ function App() {
     refetch();
   };
 
-  const onFinishSpin = async () => {
-    const includeName = wheelData[prizeNumber]['option'].substring(
+  const onFinishRandomizing = async () => {
+    const includeName = merchantsList[prizeNumber]['option'].substring(
       0,
-      wheelData[prizeNumber]['option'].length - 3
+      merchantsList[prizeNumber]['option'].length - 3
     );
     const pickedMerchant = merchants.find((merch) =>
       merch.name.includes(includeName)
@@ -176,40 +175,21 @@ function App() {
         ) : (
           <>
             <section>
-              {wheelData && (
-                <>
-                  <Wheel
-                    mustStartSpinning={mustSpin}
-                    prizeNumber={prizeNumber}
-                    outerBorderWidth={3}
-                    fontSize={10}
-                    radiusLineWidth={3}
-                    data={wheelData}
-                    onStopSpinning={onFinishSpin}
-                  />
-                  {mustSpin ? (
-                    <p>Waiting to spin...</p>
-                  ) : (
-                    <>
-                      <WiredButton elevation={2} onClick={handleSpinClick}>
-                        SPIN
-                      </WiredButton>
-                      <WiredButton
-                        className="btn-reset"
-                        elevation={2}
-                        onClick={handleResetClick}
-                      >
-                        RE-LOAD
-                      </WiredButton>
-                    </>
-                  )}
-                </>
-              )}
+              <WheelRandomizer
+                onFinishRandomizing={onFinishRandomizing}
+                mustStartRandomizing={mustStartRandomizing}
+                prizeNumber={prizeNumber}
+                merchantsList={merchantsList}
+                onStartRandomizing={handleSpinClick}
+                onReloadMerchantsList={handleResetClick}
+              />
             </section>
             <section>
               {fetched && (
                 <>
-                  <p className="txt-resto text-center">{pickedMerchant.name}</p>
+                  <h2 className="txt-resto text-center">
+                    {pickedMerchant.name}
+                  </h2>
 
                   <div className="text-center spacing-x-8">
                     <WiredLink
