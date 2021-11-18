@@ -6,7 +6,9 @@ import {
   WiredLink,
   WiredDialog,
   WiredRadioGroup,
-  WiredRadio
+  WiredRadio,
+  WiredTabs,
+  WiredTab
 } from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
 import useGoogleAnalytics from './libs/use-analytics';
@@ -45,6 +47,7 @@ function App() {
 
   const [posData, posError] = useCurrentPosition();
   const [typeSelect, setTypeSelect] = useState('ALL');
+  const [presentation, setPresentation] = useState('wheel');
 
   // `undefined` states mean not picked yet.
   // When it is defined, then it means these 2 states have been picked/fetched.
@@ -192,22 +195,27 @@ function App() {
         ) : (
           <>
             <section>
-              {/* <Wheel
-                mustStartSpinning={mustStartRandomizing}
-                prizeNumber={prizeNumber}
-                outerBorderWidth={3}
-                fontSize={10}
-                radiusLineWidth={3}
-                data={optionsList}
-                onStopSpinning={onFinishRandomizing}
-              /> */}
-
-              <TextBlinkRandomizer
-                onFinishRandomizing={onFinishRandomizing}
-                mustStartRandomizing={mustStartRandomizing}
-                pickedMerchant={pickedMerchant}
-                optionsList={optionsList}
-              />
+              <WiredTabs selected="wheel">
+                <WiredTab name="wheel">
+                  <Wheel
+                    mustStartSpinning={mustStartRandomizing}
+                    prizeNumber={prizeNumber}
+                    outerBorderWidth={3}
+                    fontSize={10}
+                    radiusLineWidth={3}
+                    data={optionsList}
+                    onStopSpinning={onFinishRandomizing}
+                  />
+                </WiredTab>
+                <WiredTab name="text">
+                  <TextBlinkRandomizer
+                    onFinishRandomizing={onFinishRandomizing}
+                    mustStartRandomizing={mustStartRandomizing}
+                    pickedMerchant={pickedMerchant}
+                    optionsList={optionsList}
+                  />
+                </WiredTab>
+              </WiredTabs>
 
               {mustStartRandomizing ? (
                 <p>Waiting to spin...</p>
