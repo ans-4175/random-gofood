@@ -58,7 +58,7 @@ index 505dc90..b61146e 100644
      customElement('wired-tab'),
      __metadata("design:paramtypes", [])
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..97a6eb7 100644
+index f9dfb28..5d6f988 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
 @@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
@@ -70,15 +70,6 @@ index f9dfb28..97a6eb7 100644
  import { css, html, LitElement } from 'lit';
  import { customElement, property, query } from 'lit/decorators.js';
  let WiredTabs = class WiredTabs extends LitElement {
-@@ -47,7 +47,7 @@ let WiredTabs = class WiredTabs extends LitElement {
-     <div id="bar">
-       ${this.pages.map((p) => html `
-       <wired-item role="tab" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
--        @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
-+-        @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
-       `)}
-     </div>
-     <div>
 @@ -66,7 +66,10 @@ let WiredTabs = class WiredTabs extends LitElement {
                      if (n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'wired-tab') {
                          const e = n;
