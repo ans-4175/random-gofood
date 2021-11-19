@@ -1,0 +1,125 @@
+diff --git a/node_modules/wired-elements/lib/wired-lib.js b/node_modules/wired-elements/lib/wired-lib.js
+index 5b1d153..9d3ec39 100644
+--- a/node_modules/wired-elements/lib/wired-lib.js
++++ b/node_modules/wired-elements/lib/wired-lib.js
+@@ -90,7 +90,7 @@ export function ellipse(parent, x, y, width, height, seed) {
+ }
+ export function hachureFill(points, seed) {
+     const hf = new ZigZagFiller(fillHelper);
+-    const ops = hf.fillPolygon(points, options(seed));
++    const ops = hf.fillPolygons([points], options(seed));
+     return createPathNode(ops, null);
+ }
+ export function hachureEllipseFill(cx, cy, width, height, seed) {
+diff --git a/node_modules/wired-elements/lib/wired-tab.d.ts b/node_modules/wired-elements/lib/wired-tab.d.ts
+index 0ba5fe7..3cc6d77 100644
+--- a/node_modules/wired-elements/lib/wired-tab.d.ts
++++ b/node_modules/wired-elements/lib/wired-tab.d.ts
+@@ -4,6 +4,7 @@ import './wired-item.js';
+ export declare class WiredTab extends WiredBase {
+     name: string;
+     label: string;
++    hasBorder?: boolean;
+     private resizeObserver?;
+     private windowResizeHandler?;
+     constructor();
+diff --git a/node_modules/wired-elements/lib/wired-tab.js b/node_modules/wired-elements/lib/wired-tab.js
+index 505dc90..b61146e 100644
+--- a/node_modules/wired-elements/lib/wired-tab.js
++++ b/node_modules/wired-elements/lib/wired-tab.js
+@@ -17,6 +17,7 @@ let WiredTab = class WiredTab extends WiredBase {
+         super();
+         this.name = '';
+         this.label = '';
++        this.hasBorder = true;
+         if (window.ResizeObserver) {
+             this.resizeObserver = new window.ResizeObserver(() => {
+                 if (this.svg) {
+@@ -74,7 +75,9 @@ let WiredTab = class WiredTab extends WiredBase {
+         return [s.width, s.height];
+     }
+     draw(svg, s) {
+-        rectangle(svg, 2, 2, s[0] - 4, s[1] - 4, this.seed);
++        if (this.hasBorder) {
++            rectangle(svg, 2, 2, s[0] - 4, s[1] - 4, this.seed);
++        }
+     }
+ };
+ __decorate([
+@@ -85,6 +88,10 @@ __decorate([
+     property({ type: String }),
+     __metadata("design:type", Object)
+ ], WiredTab.prototype, "label", void 0);
++__decorate([
++    property({ type: Boolean }),
++    __metadata("design:type", Object)
++], WiredTab.prototype, "hasBorder", void 0);
+ WiredTab = __decorate([
+     customElement('wired-tab'),
+     __metadata("design:paramtypes", [])
+diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
+index f9dfb28..2b91b0a 100644
+--- a/node_modules/wired-elements/lib/wired-tabs.js
++++ b/node_modules/wired-elements/lib/wired-tabs.js
+@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
+ var __metadata = (this && this.__metadata) || function (k, v) {
+     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+ };
+-import { BaseCSS } from './wired-base';
++import { fireEvent, BaseCSS } from './wired-base';
+ import { css, html, LitElement } from 'lit';
+ import { customElement, property, query } from 'lit/decorators.js';
+ let WiredTabs = class WiredTabs extends LitElement {
+@@ -46,8 +46,9 @@ let WiredTabs = class WiredTabs extends LitElement {
+         return html `
+     <div id="bar">
+       ${this.pages.map((p) => html `
+-      <wired-item role="tab" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
+-        @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
++      <wired-item role="tab" name="${p.name}" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}" @click="${() => this.selected = p.name}">
++        ${p.label || p.name}
++      </wired-item>
+       `)}
+     </div>
+     <div>
+@@ -66,7 +67,10 @@ let WiredTabs = class WiredTabs extends LitElement {
+                     if (n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'wired-tab') {
+                         const e = n;
+                         this.pages.push(e);
+-                        const name = e.getAttribute('name') || '';
++                        // PATCHNOTE(imballinst): I don't know what's going on, but
++                        // there is no `name` attribute, nor is `__name` (in the DOM),
++                        // but we can access `__name` directly.
++                        const name = e.__name || '';
+                         if (name) {
+                             name.trim().split(' ').forEach((nameSegment) => {
+                                 if (nameSegment) {
+@@ -117,6 +121,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+         this.current = newPage || undefined;
+         if (this.current && this.current.wiredRender) {
+             requestAnimationFrame(() => requestAnimationFrame(() => this.current.wiredRender()));
++            this.fireSelected();
+         }
+     }
+     getElement() {
+@@ -149,6 +154,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+                 index--;
+             }
+             this.selected = list[index].name || '';
++            this.fireSelected();
+         }
+     }
+     selectNext() {
+@@ -171,8 +177,12 @@ let WiredTabs = class WiredTabs extends LitElement {
+                 index++;
+             }
+             this.selected = list[index].name || '';
++            this.fireSelected();
+         }
+     }
++    fireSelected() {
++        fireEvent(this, 'selected', { selected: this.selected });
++    }
+ };
+ __decorate([
+     property({ type: String }),

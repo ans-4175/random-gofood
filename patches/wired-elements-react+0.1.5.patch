@@ -1,0 +1,25 @@
+diff --git a/node_modules/wired-elements-react/lib/WiredTabs.d.ts b/node_modules/wired-elements-react/lib/WiredTabs.d.ts
+index cbafd3d..c37934b 100644
+--- a/node_modules/wired-elements-react/lib/WiredTabs.d.ts
++++ b/node_modules/wired-elements-react/lib/WiredTabs.d.ts
+@@ -1,5 +1,7 @@
+ import * as React from 'react';
+ import { WiredTabs as CE } from 'wired-elements/lib/wired-tabs.js';
+-export declare const WiredTabs: React.ForwardRefExoticComponent<Partial<CE> & {} & {
++export declare const WiredTabs: React.ForwardRefExoticComponent<Partial<CE> & {
++    onselected?: ((e: Event) => unknown) | undefined;
++} & {
+     children?: React.ReactNode;
+ } & React.RefAttributes<unknown>>;
+diff --git a/node_modules/wired-elements-react/lib/WiredTabs.js b/node_modules/wired-elements-react/lib/WiredTabs.js
+index 6c93459..461610a 100644
+--- a/node_modules/wired-elements-react/lib/WiredTabs.js
++++ b/node_modules/wired-elements-react/lib/WiredTabs.js
+@@ -1,4 +1,6 @@
+ import * as React from 'react';
+ import { createComponent } from '@lit-labs/react';
+ import { WiredTabs as CE } from 'wired-elements/lib/wired-tabs.js';
+-export const WiredTabs = createComponent(React, 'wired-tabs', CE);
++export const WiredTabs = createComponent(React, 'wired-tabs', CE, {
++  onselected: 'selected'
++});

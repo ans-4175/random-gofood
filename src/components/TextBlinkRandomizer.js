@@ -45,10 +45,18 @@ export default function TextBlinkRandomizer({
   }
 
   if (shownText === undefined) {
-    return <span>Press "Start" button below to start randomizing.</span>;
+    return (
+      <div className="randomizer-text-container">
+        <div>{optionsList[0].option}</div>
+
+        <div className="randomizer-text-helper">
+          Press "Randomize" button below to start.
+        </div>
+      </div>
+    );
   }
 
-  return <span>{shownText}</span>;
+  return <div className="randomizer-text-container">{shownText}</div>;
 }
 
 // Helper functions.

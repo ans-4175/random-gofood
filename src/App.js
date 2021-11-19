@@ -47,7 +47,7 @@ function App() {
 
   const [posData, posError] = useCurrentPosition();
   const [typeSelect, setTypeSelect] = useState('ALL');
-  const [presentation, setPresentation] = useState('wheel');
+  const [randomizerMode, setRandomizerMode] = useState('wheel');
 
   // `undefined` states mean not picked yet.
   // When it is defined, then it means these 2 states have been picked/fetched.
@@ -107,6 +107,7 @@ function App() {
     // Set the prize number and picked merchant, then start randomizing.
     setPrizeNumber(newPrizeNumber);
     setPickedMerchant(pickedMerchant);
+    setDetailMerchant(undefined);
     setMustStartRandomizing(true);
 
     // In the meantime, we fetch the picked merchant so that when
@@ -123,6 +124,14 @@ function App() {
     setIsMerchantDetailShown(false);
     setMustStartRandomizing(false);
     refetch();
+  };
+
+  const onChangeTab = (newTab) => {
+    setPickedMerchant(undefined);
+    setDetailMerchant(undefined);
+    setIsMerchantDetailShown(false);
+    setMustStartRandomizing(false);
+    setRandomizerMode(newTab);
   };
 
   const handleResetClick = () => {
@@ -161,6 +170,8 @@ function App() {
     }
   }, [merchants]);
 
+  const randomizeText = randomizerMode === 'wheel' ? 'Spin' : 'Randomize';
+
   return (
     <main>
       <WiredCard elevation={3}>
@@ -195,10 +206,15 @@ function App() {
         ) : (
           <>
             <section>
-              <WiredTabs selected="wheel">
-                <WiredTab name="wheel">
+              <WiredTabs
+                selected={randomizerMode}
+                onselected={(e) => onChangeTab(e.detail.selected)}
+              >
+                <WiredTab name="wheel" hasBorder={false}>
                   <Wheel
-                    mustStartSpinning={mustStartRandomizing}
+                    mustStartSpinning={
+                      randomizerMode === 'wheel' && mustStartRandomizing
+                    }
                     prizeNumber={prizeNumber}
                     outerBorderWidth={3}
                     fontSize={10}
@@ -207,10 +223,12 @@ function App() {
                     onStopSpinning={onFinishRandomizing}
                   />
                 </WiredTab>
-                <WiredTab name="text">
+                <WiredTab name="text" hasBorder={false}>
                   <TextBlinkRandomizer
                     onFinishRandomizing={onFinishRandomizing}
-                    mustStartRandomizing={mustStartRandomizing}
+                    mustStartRandomizing={
+                      randomizerMode === 'text' && mustStartRandomizing
+                    }
                     pickedMerchant={pickedMerchant}
                     optionsList={optionsList}
                   />
@@ -218,11 +236,11 @@ function App() {
               </WiredTabs>
 
               {mustStartRandomizing ? (
-                <p>Waiting to spin...</p>
+                <p>Waiting to {randomizeText}...</p>
               ) : (
                 <div>
                   <WiredButton elevation={2} onClick={handleSpinClick}>
-                    SPIN
+                    {randomizeText}
                   </WiredButton>
                   <WiredButton
                     className="btn-reset"
@@ -235,48 +253,50 @@ function App() {
               )}
             </section>
             <section>
-              {detailMerchant !== undefined && isMerchantDetailShown && (
-                <>
-                  <h2 className="txt-resto text-center">
-                    {pickedMerchant.name}
-                  </h2>
+              {detailMerchant !== undefined &&
+                pickedMerchant !== undefined &&
+                isMerchantDetailShown && (
+                  <>
+                    <h2 className="txt-resto text-center">
+                      {pickedMerchant.name}
+                    </h2>
 
-                  <div className="text-center spacing-x-8">
-                    <WiredLink
-                      href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
-                      target="_blank"
-                      rel="noopener"
-                      className="txt-cta"
+                    <div className="text-center spacing-x-8">
+                      <WiredLink
+                        href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
+                        target="_blank"
+                        rel="noopener"
+                        className="txt-cta"
+                      >
+                        Open in Map
+                      </WiredLink>
+
+                      <span>&bull;</span>
+
+                      <WiredLink
+                        href={detailMerchant.link}
+                        target="_blank"
+                        rel="noopener"
+                        className="txt-cta"
+                      >
+                        Open in GoFood
+                      </WiredLink>
+                    </div>
+
+                    <WiredButton
+                      elevation={2}
+                      onClick={() => setIsResultModalOpen(true)}
                     >
-                      Open in Map
-                    </WiredLink>
-
-                    <span>&bull;</span>
-
-                    <WiredLink
-                      href={detailMerchant.link}
-                      target="_blank"
-                      rel="noopener"
-                      className="txt-cta"
-                    >
-                      Open in GoFood
-                    </WiredLink>
-                  </div>
-
-                  <WiredButton
-                    elevation={2}
-                    onClick={() => setIsResultModalOpen(true)}
-                  >
-                    See restaurant detail
-                  </WiredButton>
-                </>
-              )}
+                      See restaurant detail
+                    </WiredButton>
+                  </>
+                )}
 
               <p className="foot-notes">&copy; @ans4175, @ajiballinst</p>
             </section>
 
             <WiredDialog open={isResultModalOpen}>
-              {detailMerchant !== undefined && (
+              {detailMerchant !== undefined && pickedMerchant !== undefined && (
                 <DetailMerchant
                   detailMerchant={detailMerchant}
                   pickedMerchant={pickedMerchant}
