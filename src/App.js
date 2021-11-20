@@ -60,11 +60,6 @@ function App() {
   const [mustStartRandomizing, setMustStartRandomizing] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
 
-  // We want to fetch the merchant when we are randomizing.
-  // This will ensure that the result appear immediately after the wheel
-  // finished spinning or text finished randomizing. After all,
-  // we get the "prize number" at the start.
-  const [isMerchantDetailShown, setIsMerchantDetailShown] = useState(false);
   const [pickedMenus, setPickedMenus] = useState([]);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
@@ -121,7 +116,6 @@ function App() {
   const resetStates = () => {
     setPickedMerchant(undefined);
     setDetailMerchant(undefined);
-    setIsMerchantDetailShown(false);
     setMustStartRandomizing(false);
     refetch();
   };
@@ -129,7 +123,6 @@ function App() {
   const onChangeTab = (newTab) => {
     setPickedMerchant(undefined);
     setDetailMerchant(undefined);
-    setIsMerchantDetailShown(false);
     setMustStartRandomizing(false);
     setRandomizerMode(newTab);
   };
@@ -154,7 +147,6 @@ function App() {
   };
 
   const onFinishRandomizing = useCallback(() => {
-    setIsMerchantDetailShown(true);
     setMustStartRandomizing(false);
   }, []);
 
@@ -171,6 +163,10 @@ function App() {
   }, [merchants]);
 
   const randomizeText = randomizerMode === 'wheel' ? 'Spin' : 'Randomize';
+  const isMerchantDetailShown =
+    pickedMerchant !== undefined &&
+    detailMerchant !== undefined &&
+    !mustStartRandomizing;
 
   return (
     <main>
@@ -253,50 +249,48 @@ function App() {
               )}
             </section>
             <section>
-              {detailMerchant !== undefined &&
-                pickedMerchant !== undefined &&
-                isMerchantDetailShown && (
-                  <>
-                    <h2 className="txt-resto text-center">
-                      {pickedMerchant.name}
-                    </h2>
+              {isMerchantDetailShown && (
+                <>
+                  <h2 className="txt-resto text-center">
+                    {pickedMerchant.name}
+                  </h2>
 
-                    <div className="text-center spacing-x-8">
-                      <WiredLink
-                        href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
-                        target="_blank"
-                        rel="noopener"
-                        className="txt-cta"
-                      >
-                        Open in Map
-                      </WiredLink>
-
-                      <span>&bull;</span>
-
-                      <WiredLink
-                        href={detailMerchant.link}
-                        target="_blank"
-                        rel="noopener"
-                        className="txt-cta"
-                      >
-                        Open in GoFood
-                      </WiredLink>
-                    </div>
-
-                    <WiredButton
-                      elevation={2}
-                      onClick={() => setIsResultModalOpen(true)}
+                  <div className="text-center spacing-x-8">
+                    <WiredLink
+                      href={`https://www.google.com/maps/search/?api=1&query=${pickedMerchant.location}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
                     >
-                      See restaurant detail
-                    </WiredButton>
-                  </>
-                )}
+                      Open in Map
+                    </WiredLink>
+
+                    <span>&bull;</span>
+
+                    <WiredLink
+                      href={detailMerchant.link}
+                      target="_blank"
+                      rel="noopener"
+                      className="txt-cta"
+                    >
+                      Open in GoFood
+                    </WiredLink>
+                  </div>
+
+                  <WiredButton
+                    elevation={2}
+                    onClick={() => setIsResultModalOpen(true)}
+                  >
+                    See restaurant detail
+                  </WiredButton>
+                </>
+              )}
 
               <p className="foot-notes">&copy; @ans4175, @ajiballinst</p>
             </section>
 
             <WiredDialog open={isResultModalOpen}>
-              {detailMerchant !== undefined && pickedMerchant !== undefined && (
+              {isMerchantDetailShown && (
                 <DetailMerchant
                   detailMerchant={detailMerchant}
                   pickedMerchant={pickedMerchant}
