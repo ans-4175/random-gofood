@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
   WiredButton,
@@ -63,6 +63,10 @@ function App() {
   const [pickedMenus, setPickedMenus] = useState([]);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
+  // Tabs ref, used to disable and enable the tabs.
+  // When we are randomizing, we don't want users to change randomizer mode.
+  const tabsRef = useRef(null);
+
   const {
     data: merchants,
     error,
@@ -104,6 +108,8 @@ function App() {
     setPickedMerchant(pickedMerchant);
     setDetailMerchant(undefined);
     setMustStartRandomizing(true);
+    // Disable the tabs.
+    tabsRef.current.requestUpdate();
 
     // In the meantime, we fetch the picked merchant so that when
     // the randomizer finishes, it can immediately appear.
@@ -117,14 +123,22 @@ function App() {
     setPickedMerchant(undefined);
     setDetailMerchant(undefined);
     setMustStartRandomizing(false);
+  };
+
+  const resetStatesAndRefetch = () => {
+    resetStatesAndRefetch();
     refetch();
   };
 
   const onChangeTab = (newTab) => {
-    setPickedMerchant(undefined);
-    setDetailMerchant(undefined);
-    setMustStartRandomizing(false);
+    sendEvent({
+      category: 'interaction',
+      action: `tab`,
+      label: newTab
+    });
+
     setRandomizerMode(newTab);
+    resetStates();
   };
 
   const handleResetClick = () => {
@@ -133,7 +147,7 @@ function App() {
       action: `button`,
       label: 'reset'
     });
-    resetStates();
+    resetStatesAndRefetch();
   };
 
   const handleCheckbox = (selected) => {
@@ -143,11 +157,13 @@ function App() {
       label: selected
     });
     setTypeSelect(selected);
-    resetStates();
+    resetStatesAndRefetch();
   };
 
   const onFinishRandomizing = useCallback(() => {
     setMustStartRandomizing(false);
+    // Re-enable the tabs.
+    tabsRef.current.requestUpdate();
   }, []);
 
   useEffect(() => {
@@ -206,8 +222,13 @@ function App() {
                 selected={randomizerMode}
                 onselected={(e) => onChangeTab(e.detail.selected)}
                 alignment="center"
+                ref={tabsRef}
               >
-                <WiredTab name="wheel" hasBorder={false}>
+                <WiredTab
+                  name="wheel"
+                  hasBorder={false}
+                  disabled={mustStartRandomizing}
+                >
                   <Wheel
                     mustStartSpinning={
                       randomizerMode === 'wheel' && mustStartRandomizing
@@ -220,7 +241,11 @@ function App() {
                     onStopSpinning={onFinishRandomizing}
                   />
                 </WiredTab>
-                <WiredTab name="text" hasBorder={false}>
+                <WiredTab
+                  name="text"
+                  hasBorder={false}
+                  disabled={mustStartRandomizing}
+                >
                   <TextBlinkRandomizer
                     onFinishRandomizing={onFinishRandomizing}
                     mustStartRandomizing={
