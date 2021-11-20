@@ -57,11 +57,23 @@ index 505dc90..b61146e 100644
  WiredTab = __decorate([
      customElement('wired-tab'),
      __metadata("design:paramtypes", [])
+diff --git a/node_modules/wired-elements/lib/wired-tabs.d.ts b/node_modules/wired-elements/lib/wired-tabs.d.ts
+index cb2b68f..138f4a5 100644
+--- a/node_modules/wired-elements/lib/wired-tabs.d.ts
++++ b/node_modules/wired-elements/lib/wired-tabs.d.ts
+@@ -1,6 +1,7 @@
+ import { TemplateResult, CSSResultArray, LitElement } from 'lit';
+ export declare class WiredTabs extends LitElement {
+     selected?: string;
++    alignment?: string;
+     private slotElement?;
+     private pages;
+     private pageMap;
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..5d6f988 100644
+index f9dfb28..0a83d21 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
-@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
+@@ -7,14 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
  var __metadata = (this && this.__metadata) || function (k, v) {
      if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
  };
@@ -69,8 +81,42 @@ index f9dfb28..5d6f988 100644
 +import { fireEvent, BaseCSS } from './wired-base';
  import { css, html, LitElement } from 'lit';
  import { customElement, property, query } from 'lit/decorators.js';
++import { classMap } from 'lit-html/directives/class-map';
++
  let WiredTabs = class WiredTabs extends LitElement {
-@@ -66,7 +66,10 @@ let WiredTabs = class WiredTabs extends LitElement {
+     constructor() {
+         super(...arguments);
+         this.pages = [];
+         this.pageMap = new Map();
++        this.alignment = 'left';
+     }
+     static get styles() {
+         return [
+@@ -39,12 +42,22 @@ let WiredTabs = class WiredTabs extends LitElement {
+           -webkit-flex-direction: row;
+           flex-direction: row;
+         }
++
++        .left {
++          justify-content: flex-start;
++        }
++        .center {
++          justify-content: center;
++        }
++        .right {
++          justify-content: flex-end;
++        }
+       `
+         ];
+     }
+     render() {
+         return html `
+-    <div id="bar">
++    <div id="bar" class=${classMap({ [this.alignment]: true })}>
+       ${this.pages.map((p) => html `
+       <wired-item role="tab" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
+         @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
+@@ -66,7 +79,10 @@ let WiredTabs = class WiredTabs extends LitElement {
                      if (n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'wired-tab') {
                          const e = n;
                          this.pages.push(e);
@@ -82,7 +128,7 @@ index f9dfb28..5d6f988 100644
                          if (name) {
                              name.trim().split(' ').forEach((nameSegment) => {
                                  if (nameSegment) {
-@@ -117,6 +120,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -117,6 +133,7 @@ let WiredTabs = class WiredTabs extends LitElement {
          this.current = newPage || undefined;
          if (this.current && this.current.wiredRender) {
              requestAnimationFrame(() => requestAnimationFrame(() => this.current.wiredRender()));
@@ -90,7 +136,7 @@ index f9dfb28..5d6f988 100644
          }
      }
      getElement() {
-@@ -149,6 +153,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -149,6 +166,7 @@ let WiredTabs = class WiredTabs extends LitElement {
                  index--;
              }
              this.selected = list[index].name || '';
@@ -98,7 +144,7 @@ index f9dfb28..5d6f988 100644
          }
      }
      selectNext() {
-@@ -171,8 +176,12 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -171,13 +189,21 @@ let WiredTabs = class WiredTabs extends LitElement {
                  index++;
              }
              this.selected = list[index].name || '';
@@ -111,3 +157,12 @@ index f9dfb28..5d6f988 100644
  };
  __decorate([
      property({ type: String }),
+     __metadata("design:type", String)
+ ], WiredTabs.prototype, "selected", void 0);
++__decorate([
++    property({ type: String }),
++    __metadata("design:type", String)
++], WiredTabs.prototype, "alignment", void 0);
+ __decorate([
+     query('slot'),
+     __metadata("design:type", HTMLSlotElement)

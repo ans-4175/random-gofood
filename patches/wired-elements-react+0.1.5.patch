@@ -1,14 +1,15 @@
 diff --git a/node_modules/wired-elements-react/lib/WiredTabs.d.ts b/node_modules/wired-elements-react/lib/WiredTabs.d.ts
-index cbafd3d..c37934b 100644
+index cbafd3d..3299a2a 100644
 --- a/node_modules/wired-elements-react/lib/WiredTabs.d.ts
 +++ b/node_modules/wired-elements-react/lib/WiredTabs.d.ts
-@@ -1,5 +1,7 @@
+@@ -1,5 +1,8 @@
  import * as React from 'react';
  import { WiredTabs as CE } from 'wired-elements/lib/wired-tabs.js';
 -export declare const WiredTabs: React.ForwardRefExoticComponent<Partial<CE> & {} & {
 +export declare const WiredTabs: React.ForwardRefExoticComponent<Partial<CE> & {
 +    onselected?: ((e: Event) => unknown) | undefined;
 +} & {
++    alignment?: string;
      children?: React.ReactNode;
  } & React.RefAttributes<unknown>>;
 diff --git a/node_modules/wired-elements-react/lib/WiredTabs.js b/node_modules/wired-elements-react/lib/WiredTabs.js

@@ -205,6 +205,7 @@ function App() {
               <WiredTabs
                 selected={randomizerMode}
                 onselected={(e) => onChangeTab(e.detail.selected)}
+                alignment="center"
               >
                 <WiredTab name="wheel" hasBorder={false}>
                   <Wheel
