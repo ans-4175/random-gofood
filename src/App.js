@@ -17,11 +17,10 @@ import { sendEvent } from './libs/ga-analytics';
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
 
-import { Wheel } from 'react-custom-roulette';
-
 import './App.css';
 import DetailMerchant from './components/DetailMerchant';
 import TextBlinkRandomizer from './components/TextBlinkRandomizer';
+import WheelRandomizer from './components/WheelRandomizer';
 
 /**
  * TODO(imballinst): probably it'll be better if we can provide a typing that works
@@ -95,9 +94,9 @@ function App() {
     });
 
     const newPrizeNumber = Math.floor(Math.random() * optionsList.length);
-    const includeName = optionsList[prizeNumber]['option'].substring(
+    const includeName = optionsList[newPrizeNumber]['option'].substring(
       0,
-      optionsList[prizeNumber]['option'].length - 3
+      optionsList[newPrizeNumber]['option'].length - 3
     );
     const pickedMerchant = merchants.find((merch) =>
       merch.name.includes(includeName)
@@ -126,20 +125,19 @@ function App() {
   };
 
   const resetStatesAndRefetch = () => {
-    resetStatesAndRefetch();
+    resetStates();
     refetch();
   };
 
-  const onChangeTab = (newTab) => {
+  const onChangeTab = useCallback((newTab) => {
     sendEvent({
       category: 'interaction',
       action: `tab`,
       label: newTab
     });
-
     setRandomizerMode(newTab);
     resetStates();
-  };
+  }, []);
 
   const handleResetClick = () => {
     sendEvent({
@@ -183,6 +181,23 @@ function App() {
     pickedMerchant !== undefined &&
     detailMerchant !== undefined &&
     !mustStartRandomizing;
+
+  const spinnerButtons = mustStartRandomizing ? (
+    <p>Waiting to {randomizeText}...</p>
+  ) : (
+    <div>
+      <WiredButton elevation={2} onClick={handleSpinClick}>
+        {randomizeText}
+      </WiredButton>
+      <WiredButton
+        className="btn-reset"
+        elevation={2}
+        onClick={handleResetClick}
+      >
+        RE-LOAD
+      </WiredButton>
+    </div>
+  );
 
   return (
     <main>
@@ -229,17 +244,16 @@ function App() {
                   hasBorder={false}
                   disabled={mustStartRandomizing}
                 >
-                  <Wheel
-                    mustStartSpinning={
+                  <WheelRandomizer
+                    mustStartRandomizing={
                       randomizerMode === 'wheel' && mustStartRandomizing
                     }
                     prizeNumber={prizeNumber}
-                    outerBorderWidth={3}
-                    fontSize={10}
-                    radiusLineWidth={3}
-                    data={optionsList}
-                    onStopSpinning={onFinishRandomizing}
-                  />
+                    optionsList={optionsList}
+                    onFinishRandomizing={onFinishRandomizing}
+                  >
+                    {spinnerButtons}
+                  </WheelRandomizer>
                 </WiredTab>
                 <WiredTab
                   name="text"
@@ -253,26 +267,11 @@ function App() {
                     }
                     pickedMerchant={pickedMerchant}
                     optionsList={optionsList}
-                  />
+                  >
+                    {spinnerButtons}
+                  </TextBlinkRandomizer>
                 </WiredTab>
               </WiredTabs>
-
-              {mustStartRandomizing ? (
-                <p>Waiting to {randomizeText}...</p>
-              ) : (
-                <div>
-                  <WiredButton elevation={2} onClick={handleSpinClick}>
-                    {randomizeText}
-                  </WiredButton>
-                  <WiredButton
-                    className="btn-reset"
-                    elevation={2}
-                    onClick={handleResetClick}
-                  >
-                    RE-LOAD
-                  </WiredButton>
-                </div>
-              )}
             </section>
             <section>
               {isMerchantDetailShown && (

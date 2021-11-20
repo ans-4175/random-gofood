@@ -7,7 +7,8 @@ export default function TextBlinkRandomizer({
   pickedMerchant,
   optionsList,
   interval = 100,
-  duration = 3000
+  duration = 3000,
+  children
 }) {
   const [shownText, setShownText] = useState(undefined);
   const merchantName = pickedMerchant?.name;
@@ -46,13 +47,17 @@ export default function TextBlinkRandomizer({
 
   if (shownText === undefined) {
     return (
-      <div className="randomizer-text-container">
-        <div>{optionsList[0].option}</div>
+      <>
+        <div className="randomizer-text-container">
+          <div>{optionsList[0].option}</div>
 
-        <div className="randomizer-text-helper">
-          Press "Randomize" button below to start.
+          <div className="randomizer-text-helper">
+            Press "Randomize" button below to start.
+          </div>
         </div>
-      </div>
+
+        {children}
+      </>
     );
   }
 

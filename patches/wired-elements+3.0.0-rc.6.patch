@@ -133,7 +133,7 @@ index cb2b68f..138f4a5 100644
      private pages;
      private pageMap;
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..dd5f5e9 100644
+index f9dfb28..dbbf9f8 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
 @@ -7,14 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
@@ -215,15 +215,7 @@ index f9dfb28..dd5f5e9 100644
          for (let i = 0; i < this.pages.length; i++) {
              const p = this.pages[i];
              if (p === newPage) {
-@@ -117,6 +145,7 @@ let WiredTabs = class WiredTabs extends LitElement {
-         this.current = newPage || undefined;
-         if (this.current && this.current.wiredRender) {
-             requestAnimationFrame(() => requestAnimationFrame(() => this.current.wiredRender()));
-+            this.fireSelected();
-         }
-     }
-     getElement() {
-@@ -148,7 +177,13 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -148,7 +176,13 @@ let WiredTabs = class WiredTabs extends LitElement {
              else {
                  index--;
              }
@@ -237,7 +229,7 @@ index f9dfb28..dd5f5e9 100644
          }
      }
      selectNext() {
-@@ -170,14 +205,27 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -170,14 +204,27 @@ let WiredTabs = class WiredTabs extends LitElement {
              else {
                  index++;
              }
