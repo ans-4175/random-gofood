@@ -1,3 +1,24 @@
+diff --git a/node_modules/wired-elements-react/lib/WiredItem.d.ts b/node_modules/wired-elements-react/lib/WiredItem.d.ts
+index 65b8bcd..2bf7b3e 100644
+--- a/node_modules/wired-elements-react/lib/WiredItem.d.ts
++++ b/node_modules/wired-elements-react/lib/WiredItem.d.ts
+@@ -1,5 +1,6 @@
+ import * as React from 'react';
+ import { WiredItem as _WiredItem } from 'wired-elements/lib/wired-item.js';
+ export declare const WiredItem: React.ForwardRefExoticComponent<Partial<_WiredItem> & {} & {
++    disabled?: boolean;
+     children?: React.ReactNode;
+ } & React.RefAttributes<unknown>>;
+diff --git a/node_modules/wired-elements-react/lib/WiredTab.d.ts b/node_modules/wired-elements-react/lib/WiredTab.d.ts
+index 9c3d248..d1e1ab9 100644
+--- a/node_modules/wired-elements-react/lib/WiredTab.d.ts
++++ b/node_modules/wired-elements-react/lib/WiredTab.d.ts
+@@ -2,4 +2,5 @@ import * as React from 'react';
+ import { WiredTab as CE } from 'wired-elements/lib/wired-tab.js';
+ export declare const WiredTab: React.ForwardRefExoticComponent<Partial<CE> & {} & {
+     children?: React.ReactNode;
++    disabled?: boolean;
+ } & React.RefAttributes<unknown>>;
 diff --git a/node_modules/wired-elements-react/lib/WiredTabs.d.ts b/node_modules/wired-elements-react/lib/WiredTabs.d.ts
 index cbafd3d..3299a2a 100644
 --- a/node_modules/wired-elements-react/lib/WiredTabs.d.ts

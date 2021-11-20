@@ -1,3 +1,60 @@
+diff --git a/node_modules/wired-elements/lib/wired-item.d.ts b/node_modules/wired-elements/lib/wired-item.d.ts
+index b2ee940..c6d4465 100644
+--- a/node_modules/wired-elements/lib/wired-item.d.ts
++++ b/node_modules/wired-elements/lib/wired-item.d.ts
+@@ -3,6 +3,7 @@ import { TemplateResult, CSSResultArray } from 'lit';
+ export declare class WiredItem extends WiredBase {
+     value: string;
+     name: string;
++    disabled: boolean;
+     selected: boolean;
+     static get styles(): CSSResultArray;
+     render(): TemplateResult;
+diff --git a/node_modules/wired-elements/lib/wired-item.js b/node_modules/wired-elements/lib/wired-item.js
+index e9c5d3c..a07b161 100644
+--- a/node_modules/wired-elements/lib/wired-item.js
++++ b/node_modules/wired-elements/lib/wired-item.js
+@@ -16,6 +16,7 @@ let WiredItem = class WiredItem extends WiredBase {
+         super(...arguments);
+         this.value = '';
+         this.name = '';
++        this.disabled = false;
+         this.selected = false;
+     }
+     static get styles() {
+@@ -69,6 +70,12 @@ let WiredItem = class WiredItem extends WiredBase {
+       button:active span {
+         transform: scale(1.02);
+       }
++      button[disabled] {
++        opacity: 0.6 !important;
++        background: rgba(0, 0, 0, 0.07);
++        cursor: default;
++        pointer-events: none;
++      }
+       #overlay {
+         display: none;
+       }
+@@ -91,7 +98,7 @@ let WiredItem = class WiredItem extends WiredBase {
+     }
+     render() {
+         return html `
+-    <button class="${this.selected ? 'selected' : ''}">
++    <button class="${this.selected ? 'selected' : ''}" ?disabled="${this.disabled}">
+       <div id="overlay"><svg></svg></div>
+       <span><slot></slot></span>
+     </button>`;
+@@ -122,6 +129,10 @@ __decorate([
+     property({ type: Boolean }),
+     __metadata("design:type", Object)
+ ], WiredItem.prototype, "selected", void 0);
++__decorate([
++    property({ type: Boolean }),
++    __metadata("design:type", Object)
++], WiredItem.prototype, "disabled", void 0);
+ WiredItem = __decorate([
+     customElement('wired-item')
+ ], WiredItem);
 diff --git a/node_modules/wired-elements/lib/wired-lib.js b/node_modules/wired-elements/lib/wired-lib.js
 index 5b1d153..9d3ec39 100644
 --- a/node_modules/wired-elements/lib/wired-lib.js
@@ -12,30 +69,32 @@ index 5b1d153..9d3ec39 100644
  }
  export function hachureEllipseFill(cx, cy, width, height, seed) {
 diff --git a/node_modules/wired-elements/lib/wired-tab.d.ts b/node_modules/wired-elements/lib/wired-tab.d.ts
-index 0ba5fe7..3cc6d77 100644
+index 0ba5fe7..45270d9 100644
 --- a/node_modules/wired-elements/lib/wired-tab.d.ts
 +++ b/node_modules/wired-elements/lib/wired-tab.d.ts
-@@ -4,6 +4,7 @@ import './wired-item.js';
+@@ -4,6 +4,8 @@ import './wired-item.js';
  export declare class WiredTab extends WiredBase {
      name: string;
      label: string;
++    disabled?: boolean;
 +    hasBorder?: boolean;
      private resizeObserver?;
      private windowResizeHandler?;
      constructor();
 diff --git a/node_modules/wired-elements/lib/wired-tab.js b/node_modules/wired-elements/lib/wired-tab.js
-index 505dc90..b61146e 100644
+index 505dc90..ac69e4d 100644
 --- a/node_modules/wired-elements/lib/wired-tab.js
 +++ b/node_modules/wired-elements/lib/wired-tab.js
-@@ -17,6 +17,7 @@ let WiredTab = class WiredTab extends WiredBase {
+@@ -17,6 +17,8 @@ let WiredTab = class WiredTab extends WiredBase {
          super();
          this.name = '';
          this.label = '';
++        this.disabled = false;
 +        this.hasBorder = true;
          if (window.ResizeObserver) {
              this.resizeObserver = new window.ResizeObserver(() => {
                  if (this.svg) {
-@@ -74,7 +75,9 @@ let WiredTab = class WiredTab extends WiredBase {
+@@ -74,7 +76,9 @@ let WiredTab = class WiredTab extends WiredBase {
          return [s.width, s.height];
      }
      draw(svg, s) {
@@ -46,7 +105,7 @@ index 505dc90..b61146e 100644
      }
  };
  __decorate([
-@@ -85,6 +88,10 @@ __decorate([
+@@ -85,6 +89,14 @@ __decorate([
      property({ type: String }),
      __metadata("design:type", Object)
  ], WiredTab.prototype, "label", void 0);
@@ -54,6 +113,10 @@ index 505dc90..b61146e 100644
 +    property({ type: Boolean }),
 +    __metadata("design:type", Object)
 +], WiredTab.prototype, "hasBorder", void 0);
++__decorate([
++    property({ type: Boolean }),
++    __metadata("design:type", Object)
++], WiredTab.prototype, "disabled", void 0);
  WiredTab = __decorate([
      customElement('wired-tab'),
      __metadata("design:paramtypes", [])
@@ -70,7 +133,7 @@ index cb2b68f..138f4a5 100644
      private pages;
      private pageMap;
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..0a83d21 100644
+index f9dfb28..dd5f5e9 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
 @@ -7,14 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
@@ -92,7 +155,7 @@ index f9dfb28..0a83d21 100644
      }
      static get styles() {
          return [
-@@ -39,12 +42,22 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -39,15 +42,32 @@ let WiredTabs = class WiredTabs extends LitElement {
            -webkit-flex-direction: row;
            flex-direction: row;
          }
@@ -109,14 +172,26 @@ index f9dfb28..0a83d21 100644
        `
          ];
      }
++    onTabClick(page) {
++        if (page.__disabled) {
++            return;
++        }
++
++        this.selected = page.name
++    }
      render() {
          return html `
 -    <div id="bar">
 +    <div id="bar" class=${classMap({ [this.alignment]: true })}>
        ${this.pages.map((p) => html `
-       <wired-item role="tab" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
-         @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
-@@ -66,7 +79,10 @@ let WiredTabs = class WiredTabs extends LitElement {
+-      <wired-item role="tab" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
+-        @click="${() => this.selected = p.name}">${p.label || p.name}</wired-item>
++      <wired-item role="tab" .disabled="${p.__disabled}" .value="${p.name}" .selected="${p.name === this.selected}" ?aria-selected="${p.name === this.selected}"
++        @click="${() => this.onTabClick(p)}">${p.label || p.name}</wired-item>
+       `)}
+     </div>
+     <div>
+@@ -66,7 +86,10 @@ let WiredTabs = class WiredTabs extends LitElement {
                      if (n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'wired-tab') {
                          const e = n;
                          this.pages.push(e);
@@ -128,7 +203,19 @@ index f9dfb28..0a83d21 100644
                          if (name) {
                              name.trim().split(' ').forEach((nameSegment) => {
                                  if (nameSegment) {
-@@ -117,6 +133,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -105,6 +128,11 @@ let WiredTabs = class WiredTabs extends LitElement {
+     }
+     updated() {
+         const newPage = this.getElement();
++        
++        if (newPage.__disabled) {
++            return;
++        }
++
+         for (let i = 0; i < this.pages.length; i++) {
+             const p = this.pages[i];
+             if (p === newPage) {
+@@ -117,6 +145,7 @@ let WiredTabs = class WiredTabs extends LitElement {
          this.current = newPage || undefined;
          if (this.current && this.current.wiredRender) {
              requestAnimationFrame(() => requestAnimationFrame(() => this.current.wiredRender()));
@@ -136,17 +223,29 @@ index f9dfb28..0a83d21 100644
          }
      }
      getElement() {
-@@ -149,6 +166,7 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -148,7 +177,13 @@ let WiredTabs = class WiredTabs extends LitElement {
+             else {
                  index--;
              }
++            
++            if (list[index].__disabled) {
++                return;
++            }
++
              this.selected = list[index].name || '';
 +            this.fireSelected();
          }
      }
      selectNext() {
-@@ -171,13 +189,21 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -170,14 +205,27 @@ let WiredTabs = class WiredTabs extends LitElement {
+             else {
                  index++;
              }
++            
++            if (list[index].__disabled) {
++                return;
++            }
++
              this.selected = list[index].name || '';
 +            this.fireSelected();
          }
