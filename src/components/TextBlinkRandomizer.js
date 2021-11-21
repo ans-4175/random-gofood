@@ -61,7 +61,11 @@ export default function TextBlinkRandomizer({
     );
   }
 
-  return <div className="randomizer-text-container">{shownText}</div>;
+  return (
+    <div className="randomizer-text-container">
+      {shownText} {children}
+    </div>
+  );
 }
 
 // Helper functions.

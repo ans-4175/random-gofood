@@ -133,7 +133,7 @@ index cb2b68f..138f4a5 100644
      private pages;
      private pageMap;
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..dbbf9f8 100644
+index f9dfb28..12eb8e4 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
 @@ -7,14 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
@@ -155,7 +155,7 @@ index f9dfb28..dbbf9f8 100644
      }
      static get styles() {
          return [
-@@ -39,15 +42,32 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -39,15 +42,33 @@ let WiredTabs = class WiredTabs extends LitElement {
            -webkit-flex-direction: row;
            flex-direction: row;
          }
@@ -177,7 +177,8 @@ index f9dfb28..dbbf9f8 100644
 +            return;
 +        }
 +
-+        this.selected = page.name
++        this.selected = page.name;
++        this.fireSelected();
 +    }
      render() {
          return html `
@@ -191,7 +192,7 @@ index f9dfb28..dbbf9f8 100644
        `)}
      </div>
      <div>
-@@ -66,7 +86,10 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -66,7 +87,10 @@ let WiredTabs = class WiredTabs extends LitElement {
                      if (n.nodeType === Node.ELEMENT_NODE && n.tagName.toLowerCase() === 'wired-tab') {
                          const e = n;
                          this.pages.push(e);
@@ -203,7 +204,7 @@ index f9dfb28..dbbf9f8 100644
                          if (name) {
                              name.trim().split(' ').forEach((nameSegment) => {
                                  if (nameSegment) {
-@@ -105,6 +128,11 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -105,6 +129,11 @@ let WiredTabs = class WiredTabs extends LitElement {
      }
      updated() {
          const newPage = this.getElement();
@@ -215,25 +216,25 @@ index f9dfb28..dbbf9f8 100644
          for (let i = 0; i < this.pages.length; i++) {
              const p = this.pages[i];
              if (p === newPage) {
-@@ -148,7 +176,13 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -148,7 +177,13 @@ let WiredTabs = class WiredTabs extends LitElement {
              else {
                  index--;
              }
-+            
++            console.log(list[index]);
 +            if (list[index].__disabled) {
 +                return;
-+            }
++            }this.fireSelected();
 +
              this.selected = list[index].name || '';
 +            this.fireSelected();
          }
      }
      selectNext() {
-@@ -170,14 +204,27 @@ let WiredTabs = class WiredTabs extends LitElement {
+@@ -170,14 +205,27 @@ let WiredTabs = class WiredTabs extends LitElement {
              else {
                  index++;
              }
-+            
++            console.log(list[index]);
 +            if (list[index].__disabled) {
 +                return;
 +            }

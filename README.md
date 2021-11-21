@@ -21,10 +21,10 @@ Look for files in
 
 We are patching `wired-elements` and `wired-elements-react`, because some of the requirements that we sought weren't available in these 2 libraries.
 
-To apply the patches under the [patches](./patches) folder, do this in the root of this project:
+To apply the patches under the [patches](./patches) folder, do this in the root of this project (this is also automatically executed after the `yarn` command):
 
 ```shell
-yarn patch-package
+yarn postinstall
 ```
 
 To apply a new patch, go to the `node_modules` folder and find the package that you want to patch. Some tips when patching:
