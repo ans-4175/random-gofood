@@ -133,7 +133,7 @@ index cb2b68f..138f4a5 100644
      private pages;
      private pageMap;
 diff --git a/node_modules/wired-elements/lib/wired-tabs.js b/node_modules/wired-elements/lib/wired-tabs.js
-index f9dfb28..12eb8e4 100644
+index f9dfb28..aa4f88a 100644
 --- a/node_modules/wired-elements/lib/wired-tabs.js
 +++ b/node_modules/wired-elements/lib/wired-tabs.js
 @@ -7,14 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
@@ -220,10 +220,10 @@ index f9dfb28..12eb8e4 100644
              else {
                  index--;
              }
-+            console.log(list[index]);
++            
 +            if (list[index].__disabled) {
 +                return;
-+            }this.fireSelected();
++            }
 +
              this.selected = list[index].name || '';
 +            this.fireSelected();
@@ -234,7 +234,7 @@ index f9dfb28..12eb8e4 100644
              else {
                  index++;
              }
-+            console.log(list[index]);
++            
 +            if (list[index].__disabled) {
 +                return;
 +            }

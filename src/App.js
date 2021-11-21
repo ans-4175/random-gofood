@@ -238,6 +238,7 @@ function App() {
                 onselected={(e) => onChangeTab(e.detail.selected)}
                 alignment="center"
                 ref={tabsRef}
+                aria-label="Randomizer mode"
               >
                 <WiredTab
                   name="wheel"
