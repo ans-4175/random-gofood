@@ -11,7 +11,9 @@ wired-card {
 }
 
 section {
-  max-width: 400px;
+  /* Make this the same with the wheel's width. */
+  /* That way, the wheel will be properly centered. */
+  max-width: 445px;
   margin: 0 auto;
   padding: 10px 0;
 }
@@ -121,6 +123,18 @@ wired-input {
   font-size: 0.6em;
 }
 
+/* Randomizer stuff. */
+.randomizer-text-container {
+  margin-top: 24px;
+}
+
+.randomizer-text-helper {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* Result modal stuff. */
 .result-modal-section {
   max-height: 100vh;
   padding: 0;

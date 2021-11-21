@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
   WiredButton,
@@ -6,19 +6,21 @@ import {
   WiredLink,
   WiredDialog,
   WiredRadioGroup,
-  WiredRadio
+  WiredRadio,
+  WiredTabs,
+  WiredTab
 } from 'wired-elements-react';
 import { useCurrentPosition } from 'react-use-geolocation';
 import useGoogleAnalytics from './libs/use-analytics';
 import { sendEvent } from './libs/ga-analytics';
-
-import { Wheel } from 'react-custom-roulette';
 
 import { fetchRandom, fetchDetail } from './api/merchants';
 import { pickNRandom } from './libs/common';
 
 import './App.css';
 import DetailMerchant from './components/DetailMerchant';
+import TextBlinkRandomizer from './components/TextBlinkRandomizer';
+import WheelRandomizer from './components/WheelRandomizer';
 
 /**
  * TODO(imballinst): probably it'll be better if we can provide a typing that works
@@ -42,20 +44,27 @@ import DetailMerchant from './components/DetailMerchant';
 function App() {
   useGoogleAnalytics();
 
-  const [typeSelect, setTypeSelect] = useState('ALL');
-  const [fetched, setFetched] = useState(false);
-  /** @type [Merchant, Function] */
-  const [pickedMerchant, setPickedMerchant] = useState({});
-  const [detailMerchant, setDetailMerchant] = useState({});
-  // eslint-disable-next-line
-  const [pickedMenus, setPickedMenus] = useState([]);
-  const [wheelData, setWheelData] = useState([]);
-  const [mustSpin, setMustSpin] = useState(false);
-  const [prizeNumber, setPrizeNumber] = useState(0);
   const [posData, posError] = useCurrentPosition();
-  // const boxCard = useRef({});
-  // This state is used in tandem with `pickedMerchant`.
+  const [typeSelect, setTypeSelect] = useState('ALL');
+  const [randomizerMode, setRandomizerMode] = useState('wheel');
+
+  // `undefined` states mean not picked yet.
+  // When it is defined, then it means these 2 states have been picked/fetched.
+  /** @type [Merchant | undefined, Function] */
+  const [pickedMerchant, setPickedMerchant] = useState(undefined);
+  const [detailMerchant, setDetailMerchant] = useState(undefined);
+
+  // States required for randomizers.
+  const [optionsList, setOptionsList] = useState(undefined);
+  const [mustStartRandomizing, setMustStartRandomizing] = useState(false);
+  const [prizeNumber, setPrizeNumber] = useState(0);
+
+  const [pickedMenus, setPickedMenus] = useState([]);
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+
+  // Tabs ref, used to disable and enable the tabs.
+  // When we are randomizing, we don't want users to change randomizer mode.
+  const tabsRef = useRef(null);
 
   const {
     data: merchants,
@@ -77,17 +86,58 @@ function App() {
     }
   );
 
-  const handleSpinClick = () => {
+  const handleSpinClick = async () => {
     sendEvent({
       category: 'interaction',
       action: `button`,
       label: 'spin'
     });
-    setFetched(false);
-    const newPrizeNumber = Math.floor(Math.random() * wheelData.length);
+
+    const newPrizeNumber = Math.floor(Math.random() * optionsList.length);
+    const includeName = optionsList[newPrizeNumber]['option'].substring(
+      0,
+      optionsList[newPrizeNumber]['option'].length - 3
+    );
+    const pickedMerchant = merchants.find((merch) =>
+      merch.name.includes(includeName)
+    );
+
+    // Set the prize number and picked merchant, then start randomizing.
     setPrizeNumber(newPrizeNumber);
-    setMustSpin(true);
+    setPickedMerchant(pickedMerchant);
+    setDetailMerchant(undefined);
+    setMustStartRandomizing(true);
+    // Disable the tabs.
+    tabsRef.current.requestUpdate();
+
+    // In the meantime, we fetch the picked merchant so that when
+    // the randomizer finishes, it can immediately appear.
+    const detailMerchant = await fetchDetail(pickedMerchant.id);
+    const randomMenu = pickNRandom(detailMerchant.menu, 3);
+    setDetailMerchant(detailMerchant);
+    setPickedMenus(randomMenu);
   };
+
+  const resetStates = () => {
+    setPickedMerchant(undefined);
+    setDetailMerchant(undefined);
+    setMustStartRandomizing(false);
+  };
+
+  const resetStatesAndRefetch = () => {
+    resetStates();
+    refetch();
+  };
+
+  const onChangeTab = useCallback((newTab) => {
+    sendEvent({
+      category: 'interaction',
+      action: `tab`,
+      label: newTab
+    });
+    setRandomizerMode(newTab);
+    resetStates();
+  }, []);
 
   const handleResetClick = () => {
     sendEvent({
@@ -95,9 +145,7 @@ function App() {
       action: `button`,
       label: 'reset'
     });
-    setFetched(false);
-    setMustSpin(false);
-    refetch();
+    resetStatesAndRefetch();
   };
 
   const handleCheckbox = (selected) => {
@@ -107,28 +155,14 @@ function App() {
       label: selected
     });
     setTypeSelect(selected);
-    setFetched(false);
-    setMustSpin(false);
-    refetch();
+    resetStatesAndRefetch();
   };
 
-  const onFinishSpin = async () => {
-    const includeName = wheelData[prizeNumber]['option'].substring(
-      0,
-      wheelData[prizeNumber]['option'].length - 3
-    );
-    const pickedMerchant = merchants.find((merch) =>
-      merch.name.includes(includeName)
-    );
-    const detailMerchant = await fetchDetail(pickedMerchant.id);
-    const randomMenu = pickNRandom(detailMerchant.menu, 3);
-
-    setPickedMerchant(pickedMerchant);
-    setDetailMerchant(detailMerchant);
-    setMustSpin(false);
-    setFetched(true);
-    setPickedMenus(randomMenu);
-  };
+  const onFinishRandomizing = useCallback(() => {
+    setMustStartRandomizing(false);
+    // Re-enable the tabs.
+    tabsRef.current.requestUpdate();
+  }, []);
 
   useEffect(() => {
     if (merchants) {
@@ -138,9 +172,32 @@ function App() {
           option: `${merch.name.substring(0, 25)}...`
         };
       });
-      setWheelData(newWheelData);
+      setOptionsList(newWheelData);
     }
   }, [merchants]);
+
+  const randomizeText = randomizerMode === 'wheel' ? 'Spin' : 'Randomize';
+  const isMerchantDetailShown =
+    pickedMerchant !== undefined &&
+    detailMerchant !== undefined &&
+    !mustStartRandomizing;
+
+  const spinnerButtons = mustStartRandomizing ? (
+    <p>Waiting to {randomizeText}...</p>
+  ) : (
+    <div>
+      <WiredButton elevation={2} onClick={handleSpinClick}>
+        {randomizeText}
+      </WiredButton>
+      <WiredButton
+        className="btn-reset"
+        elevation={2}
+        onClick={handleResetClick}
+      >
+        RE-LOAD
+      </WiredButton>
+    </div>
+  );
 
   return (
     <main>
@@ -169,47 +226,60 @@ function App() {
         </WiredRadioGroup>
         {!posData && !posError ? (
           <p>Getting browser's location...</p>
-        ) : isFetching || isLoading ? (
+        ) : isFetching || isLoading || optionsList === undefined ? (
           <p>Loading merchants data...</p>
         ) : isError || posError ? (
           <p>Error: {isError ? error.message : posError.message}</p>
         ) : (
           <>
             <section>
-              {wheelData && (
-                <>
-                  <Wheel
-                    mustStartSpinning={mustSpin}
+              <WiredTabs
+                selected={randomizerMode}
+                onselected={(e) => onChangeTab(e.detail.selected)}
+                alignment="center"
+                ref={tabsRef}
+                aria-label="Randomizer mode"
+              >
+                <WiredTab
+                  name="wheel"
+                  hasBorder={false}
+                  disabled={mustStartRandomizing}
+                >
+                  <WheelRandomizer
+                    mustStartRandomizing={
+                      randomizerMode === 'wheel' && mustStartRandomizing
+                    }
                     prizeNumber={prizeNumber}
-                    outerBorderWidth={3}
-                    fontSize={10}
-                    radiusLineWidth={3}
-                    data={wheelData}
-                    onStopSpinning={onFinishSpin}
-                  />
-                  {mustSpin ? (
-                    <p>Waiting to spin...</p>
-                  ) : (
-                    <>
-                      <WiredButton elevation={2} onClick={handleSpinClick}>
-                        SPIN
-                      </WiredButton>
-                      <WiredButton
-                        className="btn-reset"
-                        elevation={2}
-                        onClick={handleResetClick}
-                      >
-                        RE-LOAD
-                      </WiredButton>
-                    </>
-                  )}
-                </>
-              )}
+                    optionsList={optionsList}
+                    onFinishRandomizing={onFinishRandomizing}
+                  >
+                    {spinnerButtons}
+                  </WheelRandomizer>
+                </WiredTab>
+                <WiredTab
+                  name="text"
+                  hasBorder={false}
+                  disabled={mustStartRandomizing}
+                >
+                  <TextBlinkRandomizer
+                    onFinishRandomizing={onFinishRandomizing}
+                    mustStartRandomizing={
+                      randomizerMode === 'text' && mustStartRandomizing
+                    }
+                    pickedMerchant={pickedMerchant}
+                    optionsList={optionsList}
+                  >
+                    {spinnerButtons}
+                  </TextBlinkRandomizer>
+                </WiredTab>
+              </WiredTabs>
             </section>
             <section>
-              {fetched && (
+              {isMerchantDetailShown && (
                 <>
-                  <p className="txt-resto text-center">{pickedMerchant.name}</p>
+                  <h2 className="txt-resto text-center">
+                    {pickedMerchant.name}
+                  </h2>
 
                   <div className="text-center spacing-x-8">
                     <WiredLink
@@ -246,7 +316,7 @@ function App() {
             </section>
 
             <WiredDialog open={isResultModalOpen}>
-              {fetched && (
+              {isMerchantDetailShown && (
                 <DetailMerchant
                   detailMerchant={detailMerchant}
                   pickedMerchant={pickedMerchant}
